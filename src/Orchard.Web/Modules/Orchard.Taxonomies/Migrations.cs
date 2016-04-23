@@ -93,6 +93,23 @@ namespace Orchard.Taxonomies {
                );
 
             return 5;
+        );
+        
+        public int UpdateFrom5() {
+            SchemaBuilder.AlterTable("TermPartRecord", table => table
+                .AddColumn<int>("Level")                
+            );
+
+            SchemaBuilder.AlterTable("TermPartRecord", table => table
+                .CreateIndex("IDX_Level", "Level")
+            );
+
+            var terms = _contentManager.Query<TermPart, TermPartRecord>().List();
+            foreach (var term in terms) {
+                term.Level = term.Path.Count(c => c == '/');
+            }
+
+            return 6;
         }
 
         public int UpdateFrom4() {

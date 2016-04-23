@@ -43,7 +43,8 @@ namespace Orchard.DynamicForms.Controllers
         }
 
         public ActionResult GetChildrenTerms(int contentId, string formName, string elementName, string parentTermIds) {
-            
+            if (string.IsNullOrWhiteSpace(parentTermIds))
+                return new HttpNotFoundResult();
             var layoutPart = _layoutManager.GetLayout(contentId);
             if (layoutPart == null)
                 return new HttpNotFoundResult();
