@@ -102,7 +102,7 @@ namespace Orchard.DynamicForms.Controllers {
                 var contentItemToEdit = _contentManager.Get(contenItemIdToEdit, versionOptions);
                 var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
                 if (onlyOwnContent
-                    && (!(isAUserType && user.Id == contentItemToEdit.Id)
+                    && ((isAUserType && user.Id != contentItemToEdit.Id)
                     || 
                         (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != user.Id)
                     )) {
