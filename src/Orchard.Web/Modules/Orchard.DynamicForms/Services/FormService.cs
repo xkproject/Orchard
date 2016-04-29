@@ -294,8 +294,11 @@ namespace Orchard.DynamicForms.Services {
 
             var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
             if (form.Publication == "Publish" || !contentTypeSettings.Draftable) {
-                _contentManager.Publish(form.ContentItemToEdit as ContentItem);
-            }            
+                _contentManager.Unpublish(contentItem);
+                _contentManager.Publish(contentItem);
+            }
+
+            return contentItem;
         }
 
         private void InvokeBindings(IContent content, Form form, IValueProvider valueProvider, ContentManagement.MetaData.Models.ContentTypeDefinition contentTypeDefinition) {
