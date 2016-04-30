@@ -193,7 +193,9 @@ namespace Orchard.DynamicForms.Drivers {
                         var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
                         if (onlyOwnContent 
                             && ((isAUserType && currentUser.Id != contentItemToEdit.Id)
-                            && (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != currentUser.Id)) {
+                            	|| 
+                                (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != currentUser.Id))
+                               ) {
                             Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", element.Name);
                             return;
                         }

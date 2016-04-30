@@ -39,9 +39,12 @@
                     else
                         parentTermIds = parentTaxonomyElementOptions.val();
                     if (typeof parentTermIds === 'string') {
+                        if (parseInt(parentTermIds) === NaN)
+                            parentTermIds = 0;
                         if (parentTermIds === 0)
                             parentTermIds = [];
-                        parentTermIds = [parentTermIds];
+                        else
+                            parentTermIds = [parentTermIds];                        
                     }
                     var param = "";
                     if (parentTermIds != null)
