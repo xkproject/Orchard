@@ -297,7 +297,7 @@ namespace Orchard.DynamicForms.Services {
             var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
             if (form.Publication == "Publish" || !contentTypeSettings.Draftable) {
                 _contentManager.Unpublish(contentItem);
-                _contentManager.Publish(contentItem);
+                _contentManager.Publish(contentItem);                
             }
 
             return contentItem;
