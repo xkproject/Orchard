@@ -93,7 +93,6 @@ namespace Orchard.Taxonomies {
                );
 
             return 5;
-            );
         }
         
         public int UpdateFrom5() {
