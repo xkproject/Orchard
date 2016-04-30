@@ -96,7 +96,7 @@ namespace Orchard.Taxonomies {
             );
         }
         
-        public int UpdateFrom4() {
+        public int UpdateFrom5() {
             SchemaBuilder.AlterTable("TermPartRecord", table => table
                 .AddColumn<int>("Level")                
             );
