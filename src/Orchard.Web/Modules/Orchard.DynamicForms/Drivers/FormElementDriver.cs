@@ -193,7 +193,7 @@ namespace Orchard.DynamicForms.Drivers {
                         element.ContentItemToEdit = _contentManager.Get(contentIdToEdit, versionOptions);
                         var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
                         if (onlyOwnContent
-                            && (!(isAUserType && currentUser.Id == element.ContentItemToEdit.Id)
+                            && ((isAUserType && currentUser.Id != element.ContentItemToEdit.Id)
                                 || 
                                 (!isAUserType && element.ContentItemToEdit.As<CommonPart>().Owner.Id != currentUser.Id))
                             ) {
