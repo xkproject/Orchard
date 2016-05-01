@@ -50,10 +50,10 @@ namespace Orchard.DynamicForms.Handlers {
             var contentItem = default(ContentItem);
             if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType)) {
                 if (context.ContentIdToEdit == 0)
-                    contentItem = formService.CreateContentItem(context.Content, form, context.ValueProvider);
+                    formService.CreateContentItem(context.Content, form, context.ValueProvider);
                 else if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType))
-                    contentItem = formService.UpdateContentItem(context.ContentIdToEdit, context.Content, form, context.ValueProvider);
-                if (contentItem == null) {
+                    formService.UpdateContentItem(context.Content, form, context.ValueProvider);
+                if (form.ContentItemToEdit == null) {
                     context.ModelState.AddModelError("contentIdToEdit", "Error storing content item.");
                     return;
                 }
