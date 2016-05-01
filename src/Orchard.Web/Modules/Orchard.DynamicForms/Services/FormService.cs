@@ -24,6 +24,7 @@ using Orchard.Layouts.Services;
 using Orchard.Localization.Services;
 using Orchard.Security;
 using Orchard.Services;
+using Orchard.Tokens;
 
 namespace Orchard.DynamicForms.Services {
     public class FormService : IFormService {
@@ -41,6 +42,8 @@ namespace Orchard.DynamicForms.Services {
         private readonly ICultureAccessor _cultureAccessor;
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly ILayoutManager _layoutManager;
+        private readonly Dictionary<string, bool> _evaluations = new Dictionary<string, bool>();
 
         public FormService(
             ILayoutSerializer serializer, 
@@ -55,7 +58,8 @@ namespace Orchard.DynamicForms.Services {
             IOrchardServices services, 
             ICultureAccessor cultureAccessor,
             IAuthenticationService authenticationService,
-            IAuthorizationService authorizationService) {
+            IAuthorizationService authorizationService,
+            ILayoutManager layoutManager) {
 
             _serializer = serializer;
             _clock = clock;
@@ -71,8 +75,51 @@ namespace Orchard.DynamicForms.Services {
             _cultureAccessor = cultureAccessor;
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
+            _layoutManager = layoutManager;
+        }        
+
+        public Form GetAuthorizedForm(LayoutPart layoutPart, string formName, int contenItemIdToEdit) {
+            if (layoutPart == null)
+                return null;
+            var form = FindForm(layoutPart, formName);
+            if (form == null)
+                return null;
+            if (contenItemIdToEdit == 0 && !_services.Authorizer.Authorize(Permissions.SubmitAnyForm, layoutPart.ContentItem, formName)
+                )
+                return null;
+            return form;
         }
 
+        public IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit) {
+            var user = _services.WorkContext.CurrentUser;
+            
+            var onlyOwnContent = false;
+            if (contenItemIdToEdit <= 0)
+                return null;
+
+            if (!(form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType))
+                && !_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyData, layoutContentItem, form.Name)
+                &&
+                !(onlyOwnContent = (_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyOwnData, layoutContentItem, form.Name)))
+                )
+                return null;
+
+            var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
+            var versionOptions = VersionOptions.Latest;
+            if (form.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
+                versionOptions = VersionOptions.Published;
+
+            var contentItemToEdit = _services.ContentManager.Get(contenItemIdToEdit, versionOptions);
+            var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
+            if (onlyOwnContent
+                && ((isAUserType && user.Id != contentItemToEdit.Id)
+                ||
+                    (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != user.Id)
+                )) {
+                return null;
+            }
+            return contentItemToEdit;            
+        }
         public Form FindForm(LayoutPart layoutPart, string formName = null) {
             return String.IsNullOrWhiteSpace(formName) ? GetAllForms(layoutPart).FirstOrDefault() : GetAllForms(layoutPart).FirstOrDefault(x => x.Name == formName);
         }
@@ -90,7 +137,7 @@ namespace Orchard.DynamicForms.Services {
             return GetFormElements(form).Select(x => x.Name).Where(x => !String.IsNullOrWhiteSpace(x)).Distinct();
         }
 
-        public NameValueCollection SubmitForm(IContent content, Form form, IValueProvider valueProvider, ModelStateDictionary modelState, IUpdateModel updater, int contentIdToEdit) {
+        public NameValueCollection SubmitForm(IContent content, Form form, IValueProvider valueProvider, ModelStateDictionary modelState, IUpdateModel updater) {
             var values = ReadElementValues(form, valueProvider);
             
             _formEventHandler.Submitted(new FormSubmittedEventContext {
@@ -119,8 +166,7 @@ namespace Orchard.DynamicForms.Services {
                 Values = values,
                 ModelState = modelState,
                 ValueProvider = valueProvider,
-                Updater = updater,
-                ContentIdToEdit = contentIdToEdit
+                Updater = updater
             });
 
             return values;
@@ -251,13 +297,14 @@ namespace Orchard.DynamicForms.Services {
             return dataTable;
         }
 
-        public ContentItem CreateContentItem(IContent content, Form form, IValueProvider valueProvider) {
+        public void CreateContentItem(IContent content, Form form, IValueProvider valueProvider) {
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
 
             if (contentTypeDefinition == null)
-                return null;
+                return;
 
             var contentItem = _contentManager.New(contentTypeDefinition.Name);
+            form.ContentItemToEdit = contentItem;
 
             // Create the version record before updating fields to prevent those field values from being lost when invoking Create.
             // If Create is invoked while VersionRecord is null, a new VersionRecord will be created, wiping out our field values.
@@ -268,46 +315,36 @@ namespace Orchard.DynamicForms.Services {
                 Published = true
             };
 
-            InvokeBindings(content, form, valueProvider, contentTypeDefinition, contentItem);
+            InvokeBindings(content, form, valueProvider, contentTypeDefinition);
 
             var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
             _contentManager.Create(contentItem, VersionOptions.Draft);
 
             if (form.Publication == "Publish" || !contentTypeSettings.Draftable) {
                 _contentManager.Publish(contentItem);
-            }
-
-            return contentItem;
+            }            
         }
 
-        public ContentItem UpdateContentItem(int contentId, IContent content, Form form, IValueProvider valueProvider) {
+
+        public void UpdateContentItem(IContent content, Form form, IValueProvider valueProvider) {
             ContentTypeDefinition contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
-            ContentItem contentItem = null;
 
-            var versionOptions = VersionOptions.Latest;
-            if (form.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
-                versionOptions = VersionOptions.Published;
-
-            if (contentId == 0 || (contentItem = _contentManager.Get(contentId, versionOptions)) == null
-                || contentItem.TypeDefinition.Name != form.FormBindingContentType)
-                return null;
-
-            InvokeBindings(content, form, valueProvider, contentTypeDefinition, contentItem);
+            InvokeBindings(content, form, valueProvider, contentTypeDefinition);
 
             var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
             if (form.Publication == "Publish" || !contentTypeSettings.Draftable) {
-                _contentManager.Unpublish(contentItem);
-                _contentManager.Publish(contentItem);
-            }
-
-            return contentItem;
+                _contentManager.Unpublish(form.ContentItemToEdit as ContentItem);
+                _contentManager.Publish(form.ContentItemToEdit as ContentItem);
+            }            
         }
 
-        private void InvokeBindings(IContent content, Form form, IValueProvider valueProvider, ContentManagement.MetaData.Models.ContentTypeDefinition contentTypeDefinition, ContentItem contentItem) {
+        private void InvokeBindings(IContent content, Form form, IValueProvider valueProvider, ContentManagement.MetaData.Models.ContentTypeDefinition contentTypeDefinition) {
             var lookup = _bindingManager.DescribeBindingsFor(contentTypeDefinition);
             var formElements = GetFormElements(form);
+            var contentItem = form.ContentItemToEdit as ContentItem;
 
-            foreach (var element in formElements) {
+            var values = GetValuesFromContentItem(form);
+            foreach (var element in formElements) {                
                 var contextForReadValues = new ReadElementValuesContext { ValueProvider = valueProvider };
                 ReadElementValues(element, contextForReadValues);
                 var contextForWriteValues = new WriteElementValuesContext { ValueProvider = valueProvider, Output = contextForReadValues.Output, Content = content };
@@ -328,7 +365,8 @@ namespace Orchard.DynamicForms.Services {
             }
         }
         
-        public NameValueCollection GetValuesFromContentItem(ContentItem contentItem, Form form) {
+        public NameValueCollection GetValuesFromContentItem(Form form) {
+            ContentItem contentItem = form.ContentItemToEdit as ContentItem;
             var nameValueCollection = new NameValueCollection();
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
             
@@ -458,7 +496,7 @@ namespace Orchard.DynamicForms.Services {
 
         public void RegisterClientValidationAttributes(FormElement element, RegisterClientValidationAttributesContext context) {
             _elementHandlers.RegisterClientValidation(element, context);
-        }
+        }        
 
         private static void InvokePartBindings(
             ContentItem contentItem, 

@@ -93,7 +93,7 @@ namespace Orchard.Taxonomies {
                );
 
             return 5;
-        );
+        }
         
         public int UpdateFrom5() {
             SchemaBuilder.AlterTable("TermPartRecord", table => table

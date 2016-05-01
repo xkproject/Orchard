@@ -7,8 +7,6 @@ using System.Web.Mvc;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
-using Orchard.Core.Common.Models;
-using Orchard.Core.Contents.Settings;
 using Orchard.DynamicForms.Elements;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
@@ -36,7 +34,7 @@ namespace Orchard.DynamicForms.Drivers {
 
 
         public FormElementDriver(
-            IFormsBasedElementServices formsServices, 
+            IFormsBasedElementServices formsServices,            
             IContentDefinitionManager contentDefinitionManager,
             IContentManager contentManager,
             IFormService formService, 
@@ -159,66 +157,36 @@ namespace Orchard.DynamicForms.Drivers {
             });
         }
 
+        protected override void OnCreatingDisplay(Form element, ElementCreatingDisplayShapeContext context) {
+            var controller = _currentControllerAccessor.CurrentController;
+            int contentItemIdToEdit = 0;
+            string contentIdToEditParam = controller.Request.QueryString[HttpUtility.UrlEncode(element.Name + "Form_edit")];
+            int.TryParse(contentIdToEditParam, out contentItemIdToEdit);
+
+            var currentUser = _authenticationService.GetAuthenticatedUser();
+
+            element.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(context.Content, element, contentItemIdToEdit);
+            
+            if (element == null || (contentItemIdToEdit > 0 && element.ContentItemToEdit == null)) {
+                Logger.Warning("Insufficient permissions for rendering the specified form \"{0}\".", element.Name);
+                context.Cancel = true;                
+            }                        
+        }
+
         protected override void OnDisplaying(Form element, ElementDisplayingContext context) {
             var controller = _currentControllerAccessor.CurrentController;
-            bool onlyOwnContent = false;
-            int contentIdToEdit=0;
-            var currentUser = _authenticationService.GetAuthenticatedUser();
-            ContentItem contentItemToEdit = null;
-
-            // If form is binded to a content type
-            if (element.CreateContent == true && !String.IsNullOrWhiteSpace(element.FormBindingContentType)) {
-                string contentIdToEditParam = controller.Request.QueryString[HttpUtility.UrlEncode(element.Name + "Form_edit")];              
-                int.TryParse(contentIdToEditParam, out contentIdToEdit);
-
-                // If editing a content item
-                if (contentIdToEdit > 0) {
-                    context.ElementShape.ContentIdToEdit = contentIdToEdit;                    
-                    if (!_authorizationService.TryCheckAccess(Orchard.DynamicForms.Permissions.SubmitAnyFormForModifyData, currentUser, context.Content, element.Name)
-                        &&
-                        !(onlyOwnContent = _authorizationService.TryCheckAccess(Orchard.DynamicForms.Permissions.SubmitAnyFormForModifyOwnData, currentUser, context.Content, element.Name))) {
-                        Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", element.Name);
-                        return;
-                    }
-
-                    ContentTypeDefinition contentTypeDefinition = null;
-                    if ((contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(element.FormBindingContentType)) != null
-                        && contentTypeDefinition.Name == element.FormBindingContentType) {
-
-                        //Load elements with same version this form can create
-                        var versionOptions = VersionOptions.Latest;
-                        if (element.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
-                            versionOptions = VersionOptions.Published;                        
-                        contentItemToEdit = _contentManager.Get(contentIdToEdit, versionOptions);
-                        var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
-                        if (onlyOwnContent 
-                            && ((isAUserType && currentUser.Id != contentItemToEdit.Id)
-                            	|| 
-                                (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != currentUser.Id))
-                               ) {
-                            Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", element.Name);
-                            return;
-                        }
-                    }
-
-                    if (contentItemToEdit == null ) {
-                        _notifier.Warning(T("The form \"{0}\" cannot load content item with id \"{1}\"", element.Name, contentIdToEdit));
-                        Logger.Warning(String.Format("Attempting to display contem item \"{0}\" that doesn't exist or doesn't match with the specified type in the form \"{1}\".", contentIdToEdit, element.Name));
-                        return;
-                    }
-                }
-            }
+            context.ElementShape.ContentIdToEdit = element.ContentItemToEdit.Id;
             
             var modelState = controller != null ? controller.FetchModelState(element) : default(ModelStateDictionary);
             
-            if ((modelState != null && !modelState.IsValid) || contentIdToEdit > 0) {
+            if ((modelState != null && !modelState.IsValid) || element.ContentItemToEdit != null) {
                 NameValueCollection values = null;
                 // Read any posted values from the previous request.
                 if (modelState != null && !modelState.IsValid)
                     values = controller.FetchPostedValues(element);
                 // Read values from the content item.
                 else
-                    values = _formService.GetValuesFromContentItem(contentItemToEdit, element);                                    
+                    values = _formService.GetValuesFromContentItem(element);                                    
                 _formService.ReadElementValues(element, new NameValueCollectionValueProvider(values, _cultureAccessor.CurrentCulture));
 
                 // Add any model validation errors from the previous request.
