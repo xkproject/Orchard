@@ -45,6 +45,7 @@ namespace Orchard.DynamicForms.Services {
         private readonly IAuthorizationService _authorizationService;
         private readonly IConditionManager _conditionManager;
         private readonly ITokenizer _tokenizer;
+        private readonly ILayoutManager _layoutManager;
         private readonly Dictionary<string, bool> _evaluations = new Dictionary<string, bool>();
 
         public FormService(
@@ -61,6 +62,7 @@ namespace Orchard.DynamicForms.Services {
             ICultureAccessor cultureAccessor,
             IAuthenticationService authenticationService,
             IAuthorizationService authorizationService,
+            ILayoutManager layoutManager) {
             IConditionManager conditionManager,
             ITokenizer tokenizer) {
 
@@ -79,9 +81,52 @@ namespace Orchard.DynamicForms.Services {
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
             _conditionManager = conditionManager;
+            _layoutManager = layoutManager;
             _tokenizer = tokenizer;
+        }        
+
+        public Form GetAuthorizedForm(LayoutPart layoutPart, string formName, int contenItemIdToEdit) {
+            if (layoutPart == null)
+                return null;
+            var form = FindForm(layoutPart, formName);
+            if (form == null)
+                return null;
+            if (contenItemIdToEdit == 0 && !_services.Authorizer.Authorize(Permissions.SubmitAnyForm, layoutPart.ContentItem, formName)
+                )
+                return null;
+            return form;
         }
 
+        public IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit) {
+            var user = _services.WorkContext.CurrentUser;
+            
+            var onlyOwnContent = false;
+            if (contenItemIdToEdit <= 0)
+                return null;
+
+            if (!(form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType))
+                && !_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyData, layoutContentItem, form.Name)
+                &&
+                !(onlyOwnContent = (_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyOwnData, layoutContentItem, form.Name)))
+                )
+                return null;
+
+            var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
+            var versionOptions = VersionOptions.Latest;
+            if (form.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
+                versionOptions = VersionOptions.Published;
+
+            var contentItemToEdit = _services.ContentManager.Get(contenItemIdToEdit, versionOptions);
+            var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
+            if (onlyOwnContent
+                && ((isAUserType && user.Id != contentItemToEdit.Id)
+                ||
+                    (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != user.Id)
+                )) {
+                return null;
+            }
+            return contentItemToEdit;            
+        }
         public Form FindForm(LayoutPart layoutPart, string formName = null) {
             return String.IsNullOrWhiteSpace(formName) ? GetAllForms(layoutPart).FirstOrDefault() : GetAllForms(layoutPart).FirstOrDefault(x => x.Name == formName);
         }
@@ -289,7 +334,6 @@ namespace Orchard.DynamicForms.Services {
 
         public void UpdateContentItem(IContent content, Form form, IValueProvider valueProvider) {
             ContentTypeDefinition contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
-
             InvokeBindings(content, form, valueProvider, contentTypeDefinition);
 
             var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
@@ -305,7 +349,7 @@ namespace Orchard.DynamicForms.Services {
             var contentItem = form.ContentItemToEdit as ContentItem;
 
             var values = GetValuesFromContentItem(form);
-            foreach (var element in formElements) {
+            foreach (var element in formElements) {                
                 if (!String.IsNullOrWhiteSpace(element.ReadOnlyRule) &&
                     EvaluateRule(element.ReadOnlyRule, new { Element = element }))
                     continue;                
@@ -471,7 +515,7 @@ namespace Orchard.DynamicForms.Services {
             var result = _conditionManager.Matches(rule);
             _evaluations[rule] = result;
             return result;
-        }
+        }        
 
         private static void InvokePartBindings(
             ContentItem contentItem, 

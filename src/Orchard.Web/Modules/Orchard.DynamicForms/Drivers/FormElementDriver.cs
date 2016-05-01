@@ -8,8 +8,6 @@ using Orchard.Conditions.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
-using Orchard.Core.Common.Models;
-using Orchard.Core.Contents.Settings;
 using Orchard.DynamicForms.Elements;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
@@ -163,54 +161,27 @@ namespace Orchard.DynamicForms.Drivers {
 
         protected override void OnCreatingDisplay(Form element, ElementCreatingDisplayShapeContext context) {
             var controller = _currentControllerAccessor.CurrentController;
-            bool onlyOwnContent = false;
-            int contentIdToEdit = 0;
-            var currentUser = _authenticationService.GetAuthenticatedUser();            
+            int contentItemIdToEdit = 0;
+            int contentIdToEdit = 0;            
+            string contentIdToEditParam = controller.Request.QueryString[HttpUtility.UrlEncode(element.Name + "Form_edit")];
+            int.TryParse(contentIdToEditParam, out contentItemIdToEdit);
 
-            // If form is binded to a content type
-            if (element.CreateContent == true && !String.IsNullOrWhiteSpace(element.FormBindingContentType)) {
-                string contentIdToEditParam = controller.Request.QueryString[HttpUtility.UrlEncode(element.Name + "Form_edit")];
-                int.TryParse(contentIdToEditParam, out contentIdToEdit);
-
-                // If editing a content item
-                if (contentIdToEdit > 0) {
-                    if (!_authorizationService.TryCheckAccess(Orchard.DynamicForms.Permissions.SubmitAnyFormForModifyData, currentUser, context.Content, element.Name)
-                        &&
-                        !(onlyOwnContent = _authorizationService.TryCheckAccess(Orchard.DynamicForms.Permissions.SubmitAnyFormForModifyOwnData, currentUser, context.Content, element.Name))) {
-                        Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", element.Name);
+            var currentUser = _authenticationService.GetAuthenticatedUser();
                         context.Cancel = true;
-                        return;
-                    }
 
-                    ContentTypeDefinition contentTypeDefinition = null;
-                    if ((contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(element.FormBindingContentType)) != null
-                        && contentTypeDefinition.Name == element.FormBindingContentType) {
-
-                        //Load elements with same version this form can create
-                        var versionOptions = VersionOptions.Latest;
-                        if (element.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
-                            versionOptions = VersionOptions.Published;
-                        element.ContentItemToEdit = _contentManager.Get(contentIdToEdit, versionOptions);
-                        var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
-                        if (onlyOwnContent
-                            && ((isAUserType && currentUser.Id != element.ContentItemToEdit.Id)
-                                || 
-                                (!isAUserType && element.ContentItemToEdit.As<CommonPart>().Owner.Id != currentUser.Id))
-                            ) {
-                            Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", element.Name);
+            element.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(context.Content, element, contentItemIdToEdit);
+            
+            if (element == null || (contentItemIdToEdit > 0 && element.ContentItemToEdit == null)) {
+                Logger.Warning("Insufficient permissions for rendering the specified form \"{0}\".", element.Name);
+                context.Cancel = true;                
                             context.Cancel = true;
-                            return;
-                        }
-                    }
+            }                        
+        }
 
-                    if (element.ContentItemToEdit == null) {
-                        _notifier.Warning(T("The form \"{0}\" cannot load content item with id \"{1}\"", element.Name, contentIdToEdit));
-                        Logger.Warning(String.Format("Attempting to display contem item \"{0}\" that doesn't exist or doesn't match with the specified type in the form \"{1}\".", contentIdToEdit, element.Name));
+        protected override void OnDisplaying(Form element, ElementDisplayingContext context) {
+            var controller = _currentControllerAccessor.CurrentController;
+            context.ElementShape.ContentIdToEdit = element.ContentItemToEdit.Id;
                         context.Cancel = true;
-                        return;
-                    }
-                }
-            }
         }
 
         protected override void OnDisplaying(Form element, ElementDisplayingContext context) {

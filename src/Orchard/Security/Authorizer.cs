@@ -30,6 +30,14 @@ namespace Orchard.Security {
         bool Authorize(Permission permission, IContent content);
 
         /// <summary>
+        /// Authorize the current user against a permission for a specified form within a content item;
+        /// </summary>
+        /// <param name="permission">A permission to authorize against</param>
+        /// <param name="content">A content item the permission will be checked for</param>
+        /// <param name="formName">A form the permission will be checked for</param>
+        bool Authorize(Permission permission, IContent content, string formName);
+
+        /// <summary>
         /// Authorize the current user against a permission for a specified content item;
         /// if authorization fails, the specified message will be displayed
         /// </summary>
@@ -37,6 +45,16 @@ namespace Orchard.Security {
         /// <param name="content">A content item the permission will be checked for</param>
         /// <param name="message">A localized message to display if authorization fails</param>
         bool Authorize(Permission permission, IContent content, LocalizedString message);
+
+        /// <summary>
+        /// Authorize the current user against a permission for a specified form within a content item;
+        /// if authorization fails, the specified message will be displayed
+        /// </summary>
+        /// <param name="permission">A permission to authorize against</param>
+        /// <param name="content">A content item the permission will be checked for</param>
+        /// <param name="formName">A form the permission will be checked for</param>
+        /// <param name="message">A localized message to display if authorization fails</param>
+        bool Authorize(Permission permission, IContent content, string formName, LocalizedString message);
     }
 
     public class Authorizer : IAuthorizer {
@@ -57,7 +75,7 @@ namespace Orchard.Security {
         public Localizer T { get; set; }
 
         public bool Authorize(Permission permission) {
-            return Authorize(permission, null, null);
+            return Authorize(permission, (LocalizedString)null);
         }
 
         public bool Authorize(Permission permission, LocalizedString message) {
@@ -65,11 +83,19 @@ namespace Orchard.Security {
         }
 
         public bool Authorize(Permission permission, IContent content) {
-            return Authorize(permission, content, null);
+            return Authorize(permission, content, null, null);
+        }
+
+        public bool Authorize(Permission permission, IContent content, string formName) {
+            return Authorize(permission, content, formName, null);
         }
 
         public bool Authorize(Permission permission, IContent content, LocalizedString message) {
-            if (_authorizationService.TryCheckAccess(permission, _workContextAccessor.GetContext().CurrentUser, content))
+            return Authorize(permission, content, null, message);
+        }
+
+        public bool Authorize(Permission permission, IContent content, string formName, LocalizedString message) {
+            if (_authorizationService.TryCheckAccess(permission, _workContextAccessor.GetContext().CurrentUser, content, formName))
                 return true;
 
             if (message != null) {
