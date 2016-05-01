@@ -12,6 +12,8 @@ using Orchard.Layouts.Models;
 
 namespace Orchard.DynamicForms.Services {
     public interface IFormService : IDependency {
+        Form GetAuthorizedForm(LayoutPart layoutPart, string formName, int contenItemIdToEdit);
+        IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit);
         Form FindForm(LayoutPart layoutPart, string formName = null);
         IEnumerable<Form> GetAllForms(LayoutPart layoutPart);
         IEnumerable<FormElement> GetFormElements(Form form);
@@ -27,8 +29,7 @@ namespace Orchard.DynamicForms.Services {
         NameValueCollection ReadElementValues(Form form, IValueProvider valueProvider);
         DataTable GenerateDataTable(IEnumerable<Submission> submissions);
         void CreateContentItem(IContent content, Form form, IValueProvider valueProvider);
-        void UpdateContentItem(IContent content, Form form, IValueProvider valueProvider);
-        
+        void UpdateContentItem(IContent content, Form form, IValueProvider valueProvider);        
         NameValueCollection GetValuesFromContentItem(Form form);
         IEnumerable<IElementValidator> GetValidators<TElement>() where TElement : FormElement;
         IEnumerable<IElementValidator> GetValidators(FormElement element);

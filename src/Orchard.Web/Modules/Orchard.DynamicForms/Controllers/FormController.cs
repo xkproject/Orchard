@@ -1,26 +1,21 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Web;
 using System.Web.Mvc;
 using Orchard.ContentManagement;
-using Orchard.Core.Common.Models;
+using Orchard.ContentManagement.MetaData;
 using Orchard.DynamicForms.Elements;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
 using Orchard.Layouts.Services;
 using Orchard.Localization;
 using Orchard.Logging;
-using Orchard.Mvc;
+using Orchard.Mvc.Html;
 using Orchard.Security;
 using Orchard.Services;
 using Orchard.Tokens;
 using Orchard.UI.Notify;
-using Orchard.Utility.Extensions;
 using IController = Orchard.DynamicForms.Services.IController;
-using Orchard.Mvc.Html;
-using System.Web;
-using System.Linq;
-using System.Collections.Specialized;
-using Orchard.Core.Contents.Settings;
-using Orchard.ContentManagement.MetaData;
 
 namespace Orchard.DynamicForms.Controllers {
     public class FormController : Controller, IController, IUpdateModel {
@@ -63,56 +58,20 @@ namespace Orchard.DynamicForms.Controllers {
 
         [HttpPost, ActionName("Submit")]
         [ValidateInput(false)]
-        public ActionResult Submit(int contentId, string formName) {            
-            var layoutPart = _layoutManager.GetLayout(contentId);
-            var form = _formService.FindForm(layoutPart, formName);
-            var user = _authenticationService.GetAuthenticatedUser();
-            bool onlyOwnContent = false;
-            var urlReferrer = Request.UrlReferrer != null ? Request.UrlReferrer.PathAndQuery : "~/";                        
-
-            if (form == null) {
-                Logger.Warning("The specified form \"{0}\" could not be found.", formName);
-                _notifier.Warning(T("The specified form \"{0}\" could not be found.", formName));
-                return Redirect(urlReferrer);
-            }
-
-            int contenItemIdToEdit=0;
-            var permission = Permissions.SubmitAnyForm;
-            if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType)) {                
-                if (int.TryParse(Request.Form.Get("contentIdToEdit"), out contenItemIdToEdit) && contenItemIdToEdit > 0)
-                    permission = Permissions.SubmitAnyFormForModifyData;                
-            }
-            if (!_authorizationService.TryCheckAccess(permission, user, layoutPart.ContentItem, formName)
-                &&
-                Permissions.GetOwnerVariation(permission)!= null 
-                &&
-                !(onlyOwnContent = _authorizationService.TryCheckAccess(Permissions.GetOwnerVariation(permission), user, layoutPart.ContentItem, formName))
-                ) {
-                Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
-                _notifier.Warning(T("Insufficient permissions for submitting the specified form \"{0}\".",formName));
-                return Redirect(urlReferrer);
-            }
-
-            if (contenItemIdToEdit > 0) {
-                var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
-                var versionOptions = VersionOptions.Latest;
-                if (form.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
-                    versionOptions = VersionOptions.Published;
-
-                var contentItemToEdit = _contentManager.Get(contenItemIdToEdit, versionOptions);
-                var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
-                if (onlyOwnContent
-                    && ((isAUserType && user.Id != contentItemToEdit.Id)
-                    || 
-                        (!isAUserType && contentItemToEdit.As<CommonPart>().Owner.Id != user.Id)
-                    )) {
-                    Logger.Warning("The form \"{0}\" cannot be loaded due to edition permissions", form.Name);
-                    _notifier.Warning(T("Insufficient permissions for submitting the specified form \"{0}\".", formName));
-                    return Redirect(urlReferrer);
-                }
-                form.ContentItemToEdit = contentItemToEdit;
-            }
+        public ActionResult Submit(int contentId, string formName) {
+            int contentItemIdToEdit = 0;
+            int.TryParse(Request.Form.Get("contentIdToEdit"), out contentItemIdToEdit);
+            var urlReferrer = Request.UrlReferrer != null ? Request.UrlReferrer.PathAndQuery : "~/";            
             
+            var layoutPart = _layoutManager.GetLayout(contentId);
+            Form form = _formService.GetAuthorizedForm(layoutPart, formName, contentItemIdToEdit);
+            form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
+
+            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) { 
+                Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
+                return new HttpNotFoundResult();            
+            }
+                        
             var values = _formService.SubmitForm(layoutPart, form, ValueProvider, ModelState, this);
             this.TransferFormSubmission(form, values);
 
@@ -120,7 +79,10 @@ namespace Orchard.DynamicForms.Controllers {
                 // We need a way to inform the output cache filter to not cache the upcoming request.
                 var epoch = new DateTime(2014, DateTimeKind.Utc).Ticks;
                 var refresh = _clock.UtcNow.Ticks - epoch;
-                return Redirect(urlReferrer + "?__r=" + refresh);
+                var query = HttpUtility.ParseQueryString(Request.UrlReferrer.Query);
+                query[HttpUtility.UrlEncode(formName + "Form_edit")] = contentItemIdToEdit.ToString();
+                query["__r"] = refresh.ToString();
+                return Redirect(Request.UrlReferrer.LocalPath + "?" + query.ToQueryString());                
             }
 
             if(Response.IsRequestBeingRedirected)
@@ -129,11 +91,12 @@ namespace Orchard.DynamicForms.Controllers {
 
             if (!String.IsNullOrWhiteSpace(form.RedirectUrl)) 
                 return Redirect(_tokenizer.Replace(form.RedirectUrl, new { Content = layoutPart.ContentItem }));
-            
+
             //I don't know how to get elegantly the id fo a contentitem added to navigate to it if permissions allow it;
+            var user = _authenticationService.GetAuthenticatedUser();
             if (Request.UrlReferrer != null && _authorizationService.TryCheckAccess(Permissions.SubmitAnyFormForModifyOwnData, user, layoutPart.ContentItem, form.Name)) {
                 var query = HttpUtility.ParseQueryString(Request.UrlReferrer.Query);
-                query[HttpUtility.UrlEncode(formName + "Form_edit")] = contenItemIdToEdit.ToString();
+                query[HttpUtility.UrlEncode(formName + "Form_edit")] = contentItemIdToEdit.ToString();
                 return Redirect(Request.UrlReferrer.LocalPath + "?" + query.ToQueryString());
             }
             return Redirect(urlReferrer);
