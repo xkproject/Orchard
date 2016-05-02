@@ -314,11 +314,12 @@ namespace Orchard.DynamicForms.Services {
                 Latest = true,
                 Published = true
             };
-
-            InvokeBindings(content, form, valueProvider, contentTypeDefinition);
-
-            var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
+            
+            //Calling the create before Invoke Bindings  makes available the Content Item Id to handlers.
             _contentManager.Create(contentItem, VersionOptions.Draft);
+            InvokeBindings(content, form, valueProvider, contentTypeDefinition);
+            var contentTypeSettings = contentTypeDefinition.Settings.GetModel<ContentTypeSettings>();
+            
 
             if (form.Publication == "Publish" || !contentTypeSettings.Draftable) {
                 _contentManager.Publish(contentItem);
@@ -366,8 +367,12 @@ namespace Orchard.DynamicForms.Services {
         }
         
         public NameValueCollection GetValuesFromContentItem(Form form) {
-            ContentItem contentItem = form.ContentItemToEdit as ContentItem;
+            ContentItem contentItem = form.ContentItemToEdit as ContentItem;            
             var nameValueCollection = new NameValueCollection();
+
+            if (contentItem == null)
+                return nameValueCollection;
+
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
             
             if (contentTypeDefinition == null || (contentItem.ContentType != form.FormBindingContentType))
