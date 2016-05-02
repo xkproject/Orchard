@@ -65,7 +65,8 @@ namespace Orchard.DynamicForms.Controllers {
             
             var layoutPart = _layoutManager.GetLayout(contentId);
             Form form = _formService.GetAuthorizedForm(layoutPart, formName, contentItemIdToEdit);
-            form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
+            if (form != null)
+                form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
 
             if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);

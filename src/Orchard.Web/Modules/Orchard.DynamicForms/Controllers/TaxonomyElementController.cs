@@ -71,8 +71,10 @@ namespace Orchard.DynamicForms.Controllers
             }
             if (string.IsNullOrWhiteSpace(parentTermIds))
                 return Json(result, JsonRequestBehavior.AllowGet);
-
-            var parentTerms = _contentManager.GetMany<TermPart>(parentTermIds.Split(',').Select(int.Parse).Where(id => id > 0),VersionOptions.Published, QueryHints.Empty).Where(t=>t.TaxonomyId == element.TaxonomyId.Value);
+            int id = 0;
+            var arrayOfParentTermIds = parentTermIds.Split(',')
+                .Where(s=>int.TryParse(s,out id)).Select(s=>id).ToList();
+            var parentTerms = _contentManager.GetMany<TermPart>(arrayOfParentTermIds, VersionOptions.Published, QueryHints.Empty).Where(t=>t.TaxonomyId == element.TaxonomyId.Value);
             
             if (parentTerms == null || !parentTerms.Any())
                 return Json(result, JsonRequestBehavior.AllowGet);
