@@ -175,7 +175,7 @@ namespace Orchard.DynamicForms.Drivers {
 
         protected override void OnDisplaying(Form element, ElementDisplayingContext context) {
             var controller = _currentControllerAccessor.CurrentController;
-            context.ElementShape.ContentIdToEdit = element.ContentItemToEdit.Id;
+            context.ElementShape.ContentIdToEdit = element.ContentItemToEdit?.Id ?? 0;
             
             var modelState = controller != null ? controller.FetchModelState(element) : default(ModelStateDictionary);
             
