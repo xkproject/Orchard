@@ -67,10 +67,10 @@ namespace Orchard.DynamicForms.Controllers {
             Form form = _formService.GetAuthorizedForm(layoutPart, formName, contentItemIdToEdit);
             form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
 
-            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) { 
+            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
-                return new HttpNotFoundResult();            
-                        
+                return new HttpNotFoundResult();
+            }
             var values = _formService.SubmitForm(layoutPart, form, ValueProvider, ModelState, this);
             this.TransferFormSubmission(form, values);
 
