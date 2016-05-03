@@ -39,6 +39,9 @@ namespace Orchard.DynamicForms.Tokens {
                 formElement = element as FormElement;
                 if (formElement != null)
                     return formElement.Form.ContentItemToEdit;
+                var form = element as Form;
+                if (form != null)
+                    return form.ContentItemToEdit;
             }
             return null;
         }
