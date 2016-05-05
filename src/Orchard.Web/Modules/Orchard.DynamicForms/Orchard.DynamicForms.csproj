@@ -573,7 +573,7 @@
     <Folder Include="Views\TaxonomyElement\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bundleconfig.json" />
+    <Content Include="bundleconfig.json" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
