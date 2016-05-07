@@ -23,7 +23,9 @@ namespace Orchard.DynamicForms.Tokens {
                 .Chain(FilterChainParam, "Text", GetFieldValue)
                 .Token(token => token.StartsWith("IsValid:", StringComparison.OrdinalIgnoreCase) ? token.Substring("IsValid:".Length) : null, GetFieldValidationStatus)
                 .Token("FormName", GetFormName)
-                .Chain("FormName", "Text", GetFormName);
+                .Chain("FormName", "Text", GetFormName)
+                .Token("ContentToEdit", s => GetContentToEdit(s.Form))
+                .Chain("ContentToEdit", "Content", s => GetContentToEdit(s.Form));
 
             context.For<Element>("Element")
                 .Token("ContentToEdit", GetContentToEdit)
@@ -31,17 +33,20 @@ namespace Orchard.DynamicForms.Tokens {
         }
 
         private object GetContentToEdit(Element element) {
+            Form form = element as Form;
+            if (form != null)
+                return form.ContentItemToEdit;
             var formElement = element as FormElement;
             if (formElement != null)
                 return formElement.Form.ContentItemToEdit;
             while (element!=null) {
                 element = element.Container;
-                formElement = element as FormElement;
-                if (formElement != null)
-                    return formElement.Form.ContentItemToEdit;
-                var form = element as Form;
+                form = element as Form;
                 if (form != null)
                     return form.ContentItemToEdit;
+                formElement = element as FormElement;
+                if (formElement != null)
+                    return formElement.Form.ContentItemToEdit;                
             }
             return null;
         }
