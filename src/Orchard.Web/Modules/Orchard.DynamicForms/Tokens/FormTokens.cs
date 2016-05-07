@@ -21,24 +21,32 @@ namespace Orchard.DynamicForms.Tokens {
             context.For<FormSubmissionTokenContext>("FormSubmission")
                 .Token(token => token.StartsWith("Field:", StringComparison.OrdinalIgnoreCase) ? token.Substring("Field:".Length) : null, GetFieldValue)
                 .Chain(FilterChainParam, "Text", GetFieldValue)
-                .Token(token => token.StartsWith("IsValid:", StringComparison.OrdinalIgnoreCase) ? token.Substring("IsValid:".Length) : null, GetFieldValidationStatus);
+                .Token(token => token.StartsWith("IsValid:", StringComparison.OrdinalIgnoreCase) ? token.Substring("IsValid:".Length) : null, GetFieldValidationStatus)
+                .Token("FormName", GetFormName)
+                .Chain("FormName", "Text", GetFormName)
+                .Token("ContentToEdit", s => GetContentToEdit(s.Form))
+                .Chain("ContentToEdit", "Content", s => GetContentToEdit(s.Form));
+
             context.For<Element>("Element")
                 .Token("ContentToEdit", GetContentToEdit)
                 .Chain("ContentToEdit", "Content", GetContentToEdit);
         }
 
         private object GetContentToEdit(Element element) {
+            Form form = element as Form;
+            if (form != null)
+                return form.ContentItemToEdit;
             var formElement = element as FormElement;
             if (formElement != null)
                 return formElement.Form.ContentItemToEdit;
             while (element!=null) {
                 element = element.Container;
-                formElement = element as FormElement;
-                if (formElement != null)
-                    return formElement.Form.ContentItemToEdit;
-                var form = element as Form;
+                form = element as Form;
                 if (form != null)
                     return form.ContentItemToEdit;
+                formElement = element as FormElement;
+                if (formElement != null)
+                    return formElement.Form.ContentItemToEdit;                
             }
             return null;
         }
@@ -55,7 +63,10 @@ namespace Orchard.DynamicForms.Tokens {
         private string GetFieldValue(string fieldName, FormSubmissionTokenContext context) {
             return context.PostedValues[fieldName];
         }
-
+        private string GetFormName(FormSubmissionTokenContext context)
+        {
+            return context.Form.Name;
+        }
         private object GetFieldValidationStatus(string fieldName, FormSubmissionTokenContext context) {
             return context.ModelState.IsValidField(fieldName);
         }
