@@ -259,7 +259,7 @@ namespace Orchard.DynamicForms.Services {
 
             // Collect any remaining form values not handled by any specific element.
             var requestForm = _services.WorkContext.HttpContext.Request.Form;
-            var blackList = new[] {"__RequestVerificationToken", "formName", "contentId", "contentIdToEdit"};
+            var blackList = new[] {"__RequestVerificationToken", "formName", "contentId", "contentIdToEdit", "returnUrl"};
             foreach (var key in 
                 from string key in requestForm 
                 where !String.IsNullOrWhiteSpace(key) && !blackList.Contains(key) && values[key] == null 

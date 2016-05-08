@@ -60,6 +60,7 @@ namespace Orchard.DynamicForms.Controllers {
         [ValidateInput(false)]
         public ActionResult Submit(int contentId, string formName) {
             int contentItemIdToEdit = 0;
+            string returnUrl = Request.Form.Get("returnUrl");
             int.TryParse(Request.Form.Get("contentIdToEdit"), out contentItemIdToEdit);
             var urlReferrer = Request.UrlReferrer != null ? Request.UrlReferrer.PathAndQuery : "~/";            
             
@@ -88,6 +89,8 @@ namespace Orchard.DynamicForms.Controllers {
             if(Response.IsRequestBeingRedirected)
                 return new EmptyResult();
 
+            if (!String.IsNullOrWhiteSpace(returnUrl))
+                return Redirect(returnUrl);
 
             if (!String.IsNullOrWhiteSpace(form.RedirectUrl)) 
                 return Redirect(_tokenizer.Replace(form.RedirectUrl, new { Content = layoutPart.ContentItem }));
