@@ -19,6 +19,13 @@ namespace Orchard.DynamicForms.Drivers {
             get { yield return "HiddenField"; }
         }
 
+        protected override EditorResult OnBuildEditor(HiddenField element, ElementEditorContext context) {
+            var editableEditor = BuildForm(context, "Editable");
+            var hiddenFieldEditor = BuildForm(context, "HiddenField");
+
+            return Editor(context, editableEditor, hiddenFieldEditor);
+        }
+
         protected override void DescribeForm(DescribeContext context) {
             context.Form("HiddenField", factory => {
                 var shape = (dynamic)factory;
