@@ -60,6 +60,7 @@ namespace Orchard.DynamicForms.Controllers {
         [ValidateInput(false)]
         public ActionResult Submit(int contentId, string formName) {
             int contentItemIdToEdit = 0;
+            string returnUrl = Request.Form.Get("returnUrl");
             int.TryParse(Request.Form.Get("contentIdToEdit"), out contentItemIdToEdit);
             var urlReferrer = Request.UrlReferrer != null ? Request.UrlReferrer.PathAndQuery : "~/";            
             
@@ -68,10 +69,9 @@ namespace Orchard.DynamicForms.Controllers {
             if (form != null)
                 form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
 
-            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) { 
+            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
-                return new HttpNotFoundResult();            
-                        
+                return new HttpNotFoundResult();
             var values = _formService.SubmitForm(layoutPart, form, ValueProvider, ModelState, this);
             this.TransferFormSubmission(form, values);
 
@@ -88,6 +88,8 @@ namespace Orchard.DynamicForms.Controllers {
             if(Response.IsRequestBeingRedirected)
                 return new EmptyResult();
 
+            if (!String.IsNullOrWhiteSpace(returnUrl))
+                return Redirect(returnUrl);
 
             if (!String.IsNullOrWhiteSpace(form.RedirectUrl)) 
                 return Redirect(_tokenizer.Replace(form.RedirectUrl, new { Content = layoutPart.ContentItem }));
