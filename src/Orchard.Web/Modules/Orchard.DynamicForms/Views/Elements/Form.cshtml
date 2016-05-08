@@ -26,6 +26,7 @@
 @tagBuilder.StartElement
 <form action="@formAction" method="@formMethod" enctype="multipart/form-data">
     @DisplayChildren(Model)
+    <input type="hidden" name="returnUrl" value="@this.Request.QueryString["returnUrl"]" />
     <input type="hidden" name="contentIdToEdit" value="@contentIdToEdit" />
     <input type="hidden" name="formName" value="@formName" />
     <input type="hidden" name="contentId" value="@contentItem.Id" />
