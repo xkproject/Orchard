@@ -72,6 +72,7 @@ namespace Orchard.DynamicForms.Controllers {
             if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
                 return new HttpNotFoundResult();
+            }
             var values = _formService.SubmitForm(layoutPart, form, ValueProvider, ModelState, this);
             this.TransferFormSubmission(form, values);
 
