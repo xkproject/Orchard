@@ -43,13 +43,61 @@
 
 <div class="header zone zone-navigation">
 <article class="header-brand widget-navigation widget-html-widget widget">
-    <p><a href="/"> <img alt="Say&amp;Sail" src="Media/Default/BaseTheme/sayandsail-logo-color.svg"> </a></p>
+    <p><a href="/"> <img alt="Say&amp;Sail" src="/Media/Default/BaseTheme/sayandsail-logo-color.svg"> </a></p>
 </article>
 <article class="header-burger widget-navigation widget-html-widget widget">
-    <p></p>
+    <p><a href="#" class="header-burger-icon"><i class="fa fa-bars" aria-hidden="true"></i> Menú</a></p>
 </article><div class="header-nav-login zone zone-navigation-fixed">    <div class="row">
 
-</div>       
+<article class="header-nav widget-navigation-fixed widget-menu-widget widget">
+    
+<nav>
+    <ul class="menu menu-main-menu">
+        
+        
+<li class="active first">
+
+            <a class="" href="/?#advantages">
+VENTAJAS        </a>
+
+</li>
+<li>
+
+            <a class="" href="/?#how-it-works">
+CÓMO FUNCIONA        </a>
+
+</li>
+<li>
+
+            <a class="" href="/ayuda">
+Ayuda        </a>
+
+</li>
+<li class="last">
+
+            <a class="" href="/contacto">
+Contacto        </a>
+
+</li>
+    </ul>
+</nav>
+</article>
+<article class="header-login widget-AnonymousRenterMenu widget-navigation-fixed widget-menu-widget widget">
+    
+<nav>
+    <ul class="menu menu-anonymous-renter-menu">
+        
+        
+<li class="renterUserName  last first">
+
+        <p>
+            ¿Eres un armador? <a class="btn btn-primary" href="/armadores">Registra tus barcos GRATIS</a>        
+        </p>
+
+</li>
+    </ul>
+</nav>
+</article></div>       
     </div>
 </div>
     </header>
@@ -73,7 +121,7 @@
 <div class=" col-lg-12 col-xs-12">
 <h1>Error 404</h1>
 
-<p>Estamos seguros que ahora mismo te asaltan muchas dudas del funcionamiento de nuestra plataforma y esperamos poder responder a todas en la siguiente lista:</p>
+<p>Recurso no encontrado, Inténtelo de nuevo más tarde o póngase en contacto con su proveedor.</p>
 </div></div>
 </div>
 
