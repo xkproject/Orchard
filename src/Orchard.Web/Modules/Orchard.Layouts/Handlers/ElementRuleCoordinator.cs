@@ -23,7 +23,7 @@ namespace Orchard.Layouts.Handlers {
             if (String.IsNullOrWhiteSpace(context.Element.Rule))
                 return;
 
-            context.Cancel = !EvaluateRule(context.Element.Rule, new { Element = context.Element });
+            context.Cancel = !EvaluateRule(context.Element.Rule, new { ElementLoaded = context.Element });
         }
 
         private bool EvaluateRule(string rule, object tokenData) {
