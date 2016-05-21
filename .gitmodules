@@ -1,7 +1,3 @@
-[submodule "src/Orchard.Web/ThirdParty/Themes/PJS.Bootstrap"]
-	path = src/Orchard.Web/ThirdParty/Themes/PJS.Bootstrap
-	url = https://github.com/xkproject/PJS.Bootstrap.git
-	branch = Master_XK
 [submodule "src/Orchard.Web/ThirdParty/Modules/Downplay.Orchard.LayoutSelector"]
 	path = src/Orchard.Web/ThirdParty/Modules/Downplay.Orchard.LayoutSelector
 	url = https://github.com/xkproject/Downplay.Orchard.LayoutSelector.git
