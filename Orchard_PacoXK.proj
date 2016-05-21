@@ -229,12 +229,10 @@
       <Stage-ThemesXK-Names Include="@(Stage-ThemesXK-Directories->'%(Filename)%(Extension)')"  />
 
       <!-- Get list of theme names from the theme definition files within Themes_ThirdParty_SrcFolder -->
-	  <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
       <Stage-ThemesThirdParty-Definitions Include="$(Themes_ThirdParty_SrcFolder)\**\Theme.txt" />
       <Stage-ThemesThirdParty-Directories Include="@(Stage-ThemesThirdParty-Definitions->DirectoryName())"  />
       <Stage-ThemesThirdParty-Names Include="@(Stage-ThemesThirdParty-Directories->'%(Filename)%(Extension)')"  />
-	  -->
-	  
+
 	  <Stage-License Include="$(MSBuildProjectDirectory)\*.txt" />
       <Stage-Build Include="$(MSBuildProjectDirectory)\*.proj;$(MSBuildProjectDirectory)\*.cmd" />
     </ItemGroup>
@@ -280,12 +278,10 @@
 	  <Stage-ThemesXK-Custom Include="$(WebSitesFolder)\%(Stage-ThemesXK-Names.Identity)\**\*" Exclude="@(Stage-Bin-Exclude)">
         <ThemeName>%(Stage-ThemesXK-Names.Identity)</ThemeName>
       </Stage-ThemesXK-Custom>
-
-	  <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
 	  <Stage-ThemesThirdParty-Custom Include="$(WebSitesFolder)\%(Stage-ThemesThirdParty-Names.Identity)\**\*" Exclude="@(Stage-Bin-Exclude)">
         <ThemeName>%(Stage-ThemesThirdParty-Names.Identity)</ThemeName>
       </Stage-ThemesThirdParty-Custom>
-	  -->
+
 	  
 	  <!-- Note. Binaries are not copied for themes in the default Themes project. -->
       <Stage-Themes-Binaries Include="$(WebSitesFolder)\%(Stage-Themes-Names.Identity)\**\bin\**\*">
@@ -294,22 +290,13 @@
       <Stage-ThemesXK-Binaries Include="$(WebSitesFolder)\%(Stage-ThemesXK-Names.Identity)\**\bin\**\*">
         <ThemeName>%(Stage-ThemesXK-Names.Identity)</ThemeName>
       </Stage-ThemesXK-Binaries>
-	  
-	  
-	  <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
       <Stage-ThemesThirdParty-Binaries Include="$(WebSitesFolder)\%(Stage-ThemesThirdParty-Names.Identity)\**\bin\**\*">
         <ThemeName>%(Stage-ThemesThirdParty-Names.Identity)</ThemeName>
       </Stage-ThemesThirdParty-Binaries>
-	  -->
-	  
-	  
+
       <Stage-Themes-Sources Include="$(ThemesSrcFolder)\**\*.csproj;$(ThemesSrcFolder)\**\*.cs" Exclude="$(ThemesSrcFolder)\*.*"/>
       <Stage-ThemesXK-Sources Include="$(Themes_XK_SrcFolder)\**\*.csproj;$(Themes_XK_SrcFolder)\**\*.cs" Exclude="$(Themes_XK_SrcFolder)\*.*"/>
-	  
-	  <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
-	  <Stage-ThemesThirdParty-Sources Include="$(Themes_ThirdParty_SrcFolder)\**\*.csproj;$(Themes_ThirdParty_SrcFolder)\**\*.cs" Exclude="$(Themes_ThirdParty_SrcFolder)\*.*"/>
-	  -->
-	  
+      <Stage-ThemesThirdParty-Sources Include="$(Themes_ThirdParty_SrcFolder)\**\*.csproj;$(Themes_ThirdParty_SrcFolder)\**\*.cs" Exclude="$(Themes_ThirdParty_SrcFolder)\*.*"/>
 	  </ItemGroup>
 
     <!-- Copying module binaries is somewhat tricky: From a module "bin" directory, we
@@ -341,24 +328,19 @@
       OrchardWebBinaries="@(Stage-Orchard-Web-Bins)">
       <Output TaskParameter="ExcludedBinaries" ItemName="FilterThemeXKBinaries-ExcludedBinariesFromThemes"/>
     </FilterModuleBinaries>
-	
-	<!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
     <FilterModuleBinaries
       ModulesBinaries="@(Stage-ThemesThirdParty-Binaries)"
       OrchardWebBinaries="@(Stage-Orchard-Web-Bins)">
       <Output TaskParameter="ExcludedBinaries" ItemName="FilterThemeThirdPartyBinaries-ExcludedBinariesFromThemes"/>
     </FilterModuleBinaries>
-	-->
-	
+
     <ItemGroup>
       <Stage-Modules-Binaries-Unique Include="@(Stage-Modules-Binaries)"  Exclude="@(FilterModuleBinaries-ExcludedBinaries)"/>
       <Stage-ModulesXK-Binaries-Unique Include="@(Stage-ModulesXK-Binaries)"  Exclude="@(FilterModuleXKBinaries-ExcludedBinaries)"/>
       <Stage-ModulesThirdParty-Binaries-Unique Include="@(Stage-ModulesThirdParty-Binaries)"  Exclude="@(FilterModuleThirdPartyBinaries-ExcludedBinaries)"/>
       <Stage-Themes-Binaries-Unique Include="@(Stage-Themes-Binaries)"  Exclude="@(FilterThemeBinaries-ExcludedBinariesFromThemes)"/>
       <Stage-ThemesXK-Binaries-Unique Include="@(Stage-ThemesXK-Binaries)"  Exclude="@(FilterThemeXKBinaries-ExcludedBinariesFromThemes)"/>
-	  <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
       <Stage-ThemesThirdParty-Binaries-Unique Include="@(Stage-ThemesThirdParty-Binaries)"  Exclude="@(FilterThemeThirdPartyBinaries-ExcludedBinariesFromThemes)"/>
-	  -->
     </ItemGroup>
 
     <Copy SourceFiles="@(Stage-Web);@(Stage-Web-Config);@(Stage-License)" DestinationFolder="$(StageFolder)\%(RecursiveDir)"/>
@@ -373,39 +355,29 @@
     <Copy SourceFiles="@(Stage-ModulesThirdParty)" DestinationFiles="@(Stage-ModulesThirdParty->'$(StageFolder)\ThirdParty\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
 
     <Copy SourceFiles="@(Stage-Modules-Binaries-Unique)" DestinationFiles="@(Stage-Modules-Binaries-Unique->'$(StageFolder)\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-    <Copy SourceFiles="@(Stage-ModulesXK-Binaries-Unique)" DestinationFiles="@(Stage-ModulesXK-Binaries-Unique->'$(StageFolder)\Orchard.XK\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-    <Copy SourceFiles="@(Stage-ModulesThirdParty-Binaries-Unique)" DestinationFiles="@(Stage-ModulesThirdParty-Binaries-Unique->'$(StageFolder)\ThirdParty\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(Stage-Modules-BinariesXK-Unique)" DestinationFiles="@(Stage-Modules-BinariesXK-Unique->'$(StageFolder)\Orchard.XK\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(Stage-Modules-BinariesThirdParty-Unique)" DestinationFiles="@(Stage-Modules-BinariesThirdParty-Unique->'$(StageFolder)\ThirdParty\Modules\%(ModuleName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
 
     <Copy SourceFiles="@(Stage-Modules-Sources)" DestinationFolder="$(StageFolder)\Modules\%(RecursiveDir)"/>
     <Copy SourceFiles="@(Stage-ModulesXK-Sources)" DestinationFolder="$(StageFolder)\Orchard.XK\Modules\%(RecursiveDir)"/>
     <Copy SourceFiles="@(Stage-ModulesThirdParty-Sources)" DestinationFolder="$(StageFolder)\ThirdParty\Modules\%(RecursiveDir)"/>
 
-  
-	<Copy SourceFiles="@(Stage-Themes-Default)" DestinationFiles="@(Stage-Themes-Default->'$(StageFolder)\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <!--Copy SourceFiles="@(Stage-Themes-Default)" DestinationFiles="@(Stage-Themes-Default->'$(StageFolder)\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <Copy SourceFiles="@(Stage-ThemesXK-Default)" DestinationFiles="@(Stage-ThemesXK-Default->'$(StageFolder)\Orchard.XK\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-    
-	<!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
-	<Copy SourceFiles="@(Stage-ThemesThirdParty-Default)" DestinationFiles="@(Stage-ThemesThirdParty-Default->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-	-->	
-    
-	<Copy SourceFiles="@(Stage-Themes-Custom)" DestinationFiles="@(Stage-Themes-Custom->'$(StageFolder)\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+    <Copy SourceFiles="@(Stage-ThemesThirdParty-Default)" DestinationFiles="@(Stage-ThemesThirdParty-Default->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+
+    <Copy SourceFiles="@(Stage-Themes-Custom)" DestinationFiles="@(Stage-Themes-Custom->'$(StageFolder)\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <Copy SourceFiles="@(Stage-ThemesXK-Custom)" DestinationFiles="@(Stage-ThemesXK-Custom->'$(StageFolder)\Orchard.XK\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-    <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
-	<Copy SourceFiles="@(Stage-ThemesThirdParty-Custom)" DestinationFiles="@(Stage-ThemesThirdParty-Custom->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-	-->
-	
+    <Copy SourceFiles="@(Stage-ThemesThirdParty-Custom)" DestinationFiles="@(Stage-ThemesThirdParty-Custom->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+
     <Copy SourceFiles="@(Stage-Themes-Binaries-Unique)" DestinationFiles="@(Stage-Themes-Binaries-Unique->'$(StageFolder)\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
     <Copy SourceFiles="@(Stage-ThemesXK-Binaries-Unique)" DestinationFiles="@(Stage-ThemesXK-Binaries-Unique->'$(StageFolder)\Orchard.XK\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-    <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
-	<Copy SourceFiles="@(Stage-ThemesThirdParty-Binaries-Unique)" DestinationFiles="@(Stage-ThemesThirdParty-Binaries-Unique->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
-	-->
-	
+    <Copy SourceFiles="@(Stage-ThemesThirdParty-Binaries-Unique)" DestinationFiles="@(Stage-ThemesThirdParty-Binaries-Unique->'$(StageFolder)\ThirdParty\Themes\%(ThemeName)\%(RecursiveDir)%(Filename)%(Extension)')"/>
+
     <Copy SourceFiles="@(Stage-Themes-Sources)" DestinationFolder="$(StageFolder)\Themes\%(RecursiveDir)"/>
     <Copy SourceFiles="@(Stage-ThemesXK-Sources)" DestinationFolder="$(StageFolder)\Orchard.XK\Themes\%(RecursiveDir)"/>
-    <!-- EXCLUDE THIS BECAUSE THERE IS NOT ThirdParty Theme
-	<Copy SourceFiles="@(Stage-ThemesThirdParty-Sources)" DestinationFolder="$(StageFolder)\ThirdParty\Themes\%(RecursiveDir)"/>
-	-->
-	
+    <Copy SourceFiles="@(Stage-ThemesThirdParty-Sources)" DestinationFolder="$(StageFolder)\ThirdParty\Themes\%(RecursiveDir)"/-->
+
     <MakeDir Directories="$(StageFolder)\App_Data"/>
     <WriteLinesToFile File="$(StageFolder)\App_Data\_marker.txt" Lines="some_text" Overwrite="true"/>
 
