@@ -200,11 +200,14 @@
     <Content Include="Config\Sites.config" />
     <Content Include="packages.config" />
     <Content Include="ErrorPages\Web.config" />
+    <None Include="Properties\PublishProfiles\orchardxk-orchardxk-develop - Web Deploy.pubxml" />
+    <None Include="Properties\PublishProfiles\SayAndSail - DEV slot.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <PropertyGroup>

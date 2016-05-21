@@ -8,8 +8,10 @@ namespace Orchard.Layouts.Helpers {
             var data = new Dictionary<string, object>();
 
             if (context.Content != null)
+            {
                 data["Content"] = context.Content.ContentItem;
-
+                data["ElementLoaded"] = context.Element;
+            }
             return data;
         }
     }
