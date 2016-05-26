@@ -149,6 +149,7 @@
     <ProjectReference Include="..\Orchard.Conditions\Orchard.Conditions.csproj">
       <Project>{98251EAE-A41B-47B2-AA91-E28B8482DA70}</Project>
       <Name>Orchard.Conditions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Orchard.Autoroute\Orchard.Autoroute.csproj">
       <Project>{66FCCD76-2761-47E3-8D11-B45D0001DDAA}</Project>
       <Name>Orchard.Autoroute</Name>
