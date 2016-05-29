@@ -67,7 +67,7 @@ namespace Orchard.DynamicForms.Controllers
             var result = new List<object>();
             var optionLabel = element.OptionLabel;
             if (!String.IsNullOrWhiteSpace(optionLabel)) {
-                result.Add(new { Text = _tokenizer.Replace(optionLabel, null), Value = string.Empty });
+                result.Add(new { text = _tokenizer.Replace(optionLabel, null), value = string.Empty });
             }
             if (string.IsNullOrWhiteSpace(parentTermIds))
                 return Json(result, JsonRequestBehavior.AllowGet);
