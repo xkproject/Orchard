@@ -325,6 +325,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKProject.RedsysTPV", "Orch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKProject.Projections", "Orchard.Web\Orchard.XK\Modules\XKProject.Projections\XKProject.Projections.csproj", "{1A805C40-9025-4C1E-A1A2-2D29E4C35BF2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKProject.Payments", "Orchard.Web\Orchard.XK\Modules\XKProject.Payments\XKProject.Payments.csproj", "{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CodeCoverage|Any CPU = CodeCoverage|Any CPU
@@ -1301,6 +1303,16 @@ Global
 		{1A805C40-9025-4C1E-A1A2-2D29E4C35BF2}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{1A805C40-9025-4C1E-A1A2-2D29E4C35BF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A805C40-9025-4C1E-A1A2-2D29E4C35BF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Coverage|Any CPU.Build.0 = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1403,6 +1415,7 @@ Global
 		{4CB80438-13FD-448D-84B9-15878A8059DF} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 		{0F07EF61-E86C-477C-883C-E2B78DCD9265} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 		{1A805C40-9025-4C1E-A1A2-2D29E4C35BF2} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
+		{EF1BEFBF-B4E1-4D4D-8B37-45A8E75484D8} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\TransientFaultHandling.Core.5.1.1209.1\lib\NET4
