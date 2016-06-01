@@ -165,7 +165,7 @@ namespace Orchard.DynamicForms.Drivers {
 
             var currentUser = _authenticationService.GetAuthenticatedUser();
 
-            element.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(context.Content, element, contentItemIdToEdit);
+            element.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(context.Content, element, contentItemIdToEdit, ContentAccessType.ForRead);
             
             if (element == null || (contentItemIdToEdit > 0 && element.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for rendering the specified form \"{0}\".", element.Name);

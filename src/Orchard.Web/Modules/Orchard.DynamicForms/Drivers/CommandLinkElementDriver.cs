@@ -76,22 +76,17 @@ namespace Orchard.DynamicForms.Drivers {
             context.ElementShape.ProcessedValue = "";
             context.ElementShape.DynamicFormCommand = element.DynamicFormCommand.ToString();
             
-            if (element.Form == null)
+            if (element.Form == null || element.Form.ContentItemToEdit == null)
                 return;
-
-            int contentIdToEdit = 0;
-            int.TryParse(controller.Request.QueryString[HttpUtility.UrlEncode(element.Form.Name + "Form_edit")], out contentIdToEdit);
-            if (contentIdToEdit == 0)
-                return;
-
+            
             int contentIdToNavigate = 0;
-            if (!_formService.TryGetNextContentIdAfterApplyDynamicFormCommand(context.Content.As<LayoutPart>(), element.Form, element.DynamicFormCommand.ToString(), _contentManager.Get(contentIdToEdit), out contentIdToNavigate))
+            if (!_formService.TryGetNextContentIdAfterApplyDynamicFormCommand(context.Content.As<LayoutPart>(), element.Form, element.DynamicFormCommand.ToString(), element.Form.ContentItemToEdit, out contentIdToNavigate))
                 return;
             var query = new NameValueCollection();
             query.Add("layoutContentId", context.Content.Id.ToString());
             query.Add("formName", element.Form.Name);
             query.Add("command", element.DynamicFormCommand.ToString());
-            query.Add("currentContentId", contentIdToEdit.ToString());
+            query.Add("currentContentId", element.Form.ContentItemToEdit.Id.ToString());
             context.ElementShape.Enabled = true;
             context.ElementShape.ProcessedValue = "Orchard.DynamicForms/Form/Command?" + query.ToQueryString();
         }

@@ -86,30 +86,72 @@ namespace Orchard.DynamicForms.Services {
             _layoutManager = layoutManager;
         }        
 
-        public Form GetAuthorizedForm(LayoutPart layoutPart, string formName, int contenItemIdToEdit) {
+        public Form GetAuthorizedForm(LayoutPart layoutPart, string formName, ContentAccessType accessType) {
             if (layoutPart == null)
                 return null;
             var form = FindForm(layoutPart, formName);
             if (form == null)
                 return null;
-            if (contenItemIdToEdit == 0 && !_services.Authorizer.Authorize(Permissions.SubmitAnyForm, layoutPart.ContentItem, formName)
-                )
+            Orchard.Security.Permissions.Permission permissions = null;
+            Orchard.Security.Permissions.Permission permissionsOwner = null;
+            if (accessType == ContentAccessType.ForAdd)
+                permissions = Permissions.SubmitAnyForm;                
+            else if (accessType == ContentAccessType.ForEdit) {
+                permissions = Permissions.SubmitAnyFormForModifyData;
+                permissionsOwner = Permissions.SubmitAnyFormForModifyOwnData;
+            }
+            else if (accessType == ContentAccessType.ForDelete) {
+                permissions = Permissions.SubmitAnyFormForDeleteData;
+                permissionsOwner = Permissions.SubmitAnyFormForDeleteOwnData;
+            }
+            else if (accessType == ContentAccessType.ForRead) {
+                permissions = Permissions.ShowAnyForm;
+                permissionsOwner = Permissions.ShowAnyFormWithOwnData;
+            }
+            else
+                return null;
+
+            if (!(_services.Authorizer.Authorize(permissions, layoutPart.ContentItem, formName)
+                  || (permissionsOwner != null && _services.Authorizer.Authorize(permissionsOwner, layoutPart.ContentItem, formName))))
                 return null;
             return form;
         }        
 
-        public IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit) {
+        public IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit, ContentAccessType contentAccessType) {
             var user = _services.WorkContext.CurrentUser;
             
             var onlyOwnContent = false;
-            if (contenItemIdToEdit <= 0)
+            if (contenItemIdToEdit <= 0 || contentAccessType == ContentAccessType.ForAdd)
                 return null;
 
-            if (!(form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType))
-                && !_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyData, layoutContentItem, form.Name)
-                &&
-                !(onlyOwnContent = (_services.Authorizer.Authorize(Permissions.SubmitAnyFormForModifyOwnData, layoutContentItem, form.Name)))
-                )
+            Orchard.Security.Permissions.Permission permissions = Permissions.ShowAnyForm;
+            Orchard.Security.Permissions.Permission permissionsOwner = Permissions.ShowAnyFormWithOwnData;
+            
+            switch (contentAccessType) {
+                case ContentAccessType.ForRead:
+                    permissions = Permissions.ShowAnyForm;
+                    permissionsOwner = Permissions.ShowAnyFormWithOwnData;
+                    break;
+                case ContentAccessType.ForAdd:
+                    permissions = Permissions.SubmitAnyForm;
+                    permissionsOwner = null;
+                    break;
+                case ContentAccessType.ForEdit:
+                    permissions = Permissions.SubmitAnyFormForModifyData;
+                    permissionsOwner = Permissions.SubmitAnyFormForModifyOwnData;
+                    break;
+                case ContentAccessType.ForDelete:
+                    permissions = Permissions.SubmitAnyFormForDeleteData;
+                    permissionsOwner = Permissions.SubmitAnyFormForDeleteOwnData;
+                    break;
+                default:
+                    return null;
+            }
+
+            if (!(form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType) && 
+                (_services.Authorizer.Authorize(permissions, layoutContentItem, form.Name) ||
+                 (permissionsOwner!=null && (onlyOwnContent = (_services.Authorizer.Authorize(permissionsOwner, layoutContentItem, form.Name))))
+                )))
                 return null;
 
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
@@ -118,6 +160,9 @@ namespace Orchard.DynamicForms.Services {
                 versionOptions = VersionOptions.Published;
 
             var contentItemToEdit = _services.ContentManager.Get(contenItemIdToEdit, versionOptions);
+            if (contentItemToEdit == null || (contentItemToEdit != null && form.FormBindingContentType != contentItemToEdit.ContentType))
+                return null;
+
             var isAUserType = contentTypeDefinition.Parts.Any(p => p.PartDefinition.Name == "UserPart");
             if (onlyOwnContent
                 && ((isAUserType && user.Id != contentItemToEdit.Id)
@@ -421,10 +466,7 @@ namespace Orchard.DynamicForms.Services {
 
         public bool TryGetNextContentIdAfterApplyDynamicFormCommand(LayoutPart layoutPart, Form form, string command, IContent currentContent, out int contentId) {
             contentId = 0;
-            if (form.CreateContent != true || string.IsNullOrWhiteSpace(form.FormBindingContentType)
-                || (currentContent != null && form.FormBindingContentType != currentContent.ContentItem.ContentType))
-                return false;
-
+            
             var versionOptions = VersionOptions.Latest;
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(form.FormBindingContentType);
             if (form.Publication == "Publish" || !contentTypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
@@ -432,8 +474,8 @@ namespace Orchard.DynamicForms.Services {
     
             var user = _authenticationService.GetAuthenticatedUser();
             int userId = user != null ? user.Id : 0;
-            bool navigationEnabled = _authorizationService.TryCheckAccess(Permissions.SubmitAnyFormForModifyData, user, layoutPart.ContentItem, form.Name);
-            bool navigationEnabledOnlyInOwnData = !navigationEnabled && _authorizationService.TryCheckAccess(Permissions.SubmitAnyFormForModifyOwnData, user, layoutPart.ContentItem, form.Name);
+            bool navigationEnabled = _authorizationService.TryCheckAccess(Permissions.ShowAnyForm, user, layoutPart.ContentItem, form.Name);
+            bool navigationEnabledOnlyInOwnData = !navigationEnabled && _authorizationService.TryCheckAccess(Permissions.ShowAnyFormWithOwnData, user, layoutPart.ContentItem, form.Name);
             if (!navigationEnabled && !navigationEnabledOnlyInOwnData)                 
                 return false;
             try {
@@ -469,13 +511,7 @@ namespace Orchard.DynamicForms.Services {
                         contentId = _contentManager.Query<CommonPart>(versionOptions, form.FormBindingContentType).Where<CommonPartRecord>(c => c.Id > currentContent.Id).OrderBy(c => c.Id).Slice(0, 1).First().Id;
                     return true;
                 }
-                else if (string.Compare(command, DynamicFormCommand.Delete.ToString(), true) == 0) {
-                    bool deleteEnabled = _authorizationService.TryCheckAccess(Permissions.SubmitAnyFormForDeleteData, user, layoutPart.ContentItem, form.Name);
-                    bool deleteEnabledOnlyInOwnData = !deleteEnabled && _authorizationService.TryCheckAccess(Permissions.SubmitAnyFormForDeleteOwnData, user, layoutPart.ContentItem, form.Name);
-                    if ((!deleteEnabled && !deleteEnabledOnlyInOwnData)
-                        || (deleteEnabledOnlyInOwnData && currentContent.As<CommonPart>().Owner.Id != userId)) {
-                        return false;
-                    }
+                else if (string.Compare(command, DynamicFormCommand.Delete.ToString(), true) == 0) {                    
                     if (!TryGetNextContentIdAfterApplyDynamicFormCommand(layoutPart, form, DynamicFormCommand.Previous.ToString(), currentContent, out contentId))
                         if (!TryGetNextContentIdAfterApplyDynamicFormCommand(layoutPart, form, DynamicFormCommand.Next.ToString(), currentContent, out contentId))
                             contentId = 0;
