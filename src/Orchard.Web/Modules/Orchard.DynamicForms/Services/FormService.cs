@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Orchard.Collections;
-using Orchard.Conditions.Services;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
@@ -43,7 +42,6 @@ namespace Orchard.DynamicForms.Services {
         private readonly ICultureAccessor _cultureAccessor;
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
-        private readonly IConditionManager _conditionManager;
         private readonly ITokenizer _tokenizer;
         private readonly ILayoutManager _layoutManager;
         private readonly Dictionary<string, bool> _evaluations = new Dictionary<string, bool>();
@@ -62,7 +60,6 @@ namespace Orchard.DynamicForms.Services {
             ICultureAccessor cultureAccessor,
             IAuthenticationService authenticationService,
             IAuthorizationService authorizationService,
-            IConditionManager conditionManager,
             ITokenizer tokenizer,
             ILayoutManager layoutManager) {
 
@@ -80,7 +77,6 @@ namespace Orchard.DynamicForms.Services {
             _cultureAccessor = cultureAccessor;
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
-            _conditionManager = conditionManager;
             _layoutManager = layoutManager;
             _tokenizer = tokenizer;
             _layoutManager = layoutManager;
@@ -398,10 +394,6 @@ namespace Orchard.DynamicForms.Services {
 
             var values = GetValuesFromContentItem(form);
             foreach (var element in formElements) {                
-                if (!String.IsNullOrWhiteSpace(element.ReadOnlyRule) &&
-                    EvaluateRule(element.ReadOnlyRule, new { Element = element }))
-                    continue;                
-
                 var contextForReadValues = new ReadElementValuesContext { ValueProvider = valueProvider };
                 ReadElementValues(element, contextForReadValues);
                 var contextForWriteValues = new WriteElementValuesContext { ValueProvider = valueProvider, Output = contextForReadValues.Output, Content = content };
@@ -549,17 +541,7 @@ namespace Orchard.DynamicForms.Services {
         public void RegisterClientValidationAttributes(FormElement element, RegisterClientValidationAttributesContext context) {
             _elementHandlers.RegisterClientValidation(element, context);
         }
-
-        private bool EvaluateRule(string rule, object tokenData) {
-            if (_evaluations.ContainsKey(rule))
-                return _evaluations[rule];
-
-            rule = _tokenizer.Replace(rule, tokenData);
-            var result = _conditionManager.Matches(rule);
-            _evaluations[rule] = result;
-            return result;
-        }        
-
+        
         private static void InvokePartBindings(
             ContentItem contentItem, 
             IEnumerable<ContentPartBindingDescriptor> lookup, 
