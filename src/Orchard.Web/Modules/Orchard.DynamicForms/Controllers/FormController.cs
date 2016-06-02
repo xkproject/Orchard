@@ -62,14 +62,15 @@ namespace Orchard.DynamicForms.Controllers {
             int contentItemIdToEdit = 0;
             string returnUrl = Request.Form.Get("returnUrl");
             int.TryParse(Request.Form.Get("contentIdToEdit"), out contentItemIdToEdit);
+            var accessType = contentItemIdToEdit > 0 ? ContentAccessType.ForEdit : ContentAccessType.ForAdd;
             var urlReferrer = Request.UrlReferrer != null ? Request.UrlReferrer.PathAndQuery : "~/";            
             
             var layoutPart = _layoutManager.GetLayout(contentId);
-            Form form = _formService.GetAuthorizedForm(layoutPart, formName, contentItemIdToEdit);
+            Form form = _formService.GetAuthorizedForm(layoutPart, formName, accessType);
             if (form != null)
-                form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, contentItemIdToEdit);
+                form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit( layoutPart.ContentItem, form, contentItemIdToEdit, accessType);
 
-            if (form == null || (contentItemIdToEdit > 0 && form.ContentItemToEdit == null)) {
+            if (form == null || (accessType == ContentAccessType.ForEdit && form.ContentItemToEdit == null)) {
                 Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
                 return new HttpNotFoundResult();
             }
@@ -107,30 +108,37 @@ namespace Orchard.DynamicForms.Controllers {
 
         [HttpGet]
         public ActionResult Command(int layoutContentId, string formName, string command, int currentContentId=0) {
-            var layoutPart = _layoutManager.GetLayout(layoutContentId);
-            var form = _formService.FindForm(layoutPart, formName);
-            
             var urlReferrer = ((Request.UrlReferrer != null) ? Request.UrlReferrer.PathAndQuery : "~/");
 
+            var accessType = ContentAccessType.ForRead;
+            if (string.Compare(command, DynamicFormCommand.Delete.ToString(), true) == 0)
+                accessType = ContentAccessType.ForDelete;
+            else if (string.Compare(command, DynamicFormCommand.New.ToString(), true) == 0)
+                accessType = ContentAccessType.ForAdd;
+
+            var layoutPart = _layoutManager.GetLayout(layoutContentId);
+            var form = _formService.GetAuthorizedForm(layoutPart, formName, accessType);
+            
             if (form == null) {
-                Logger.Warning("The specified form \"{0}\" could not be found.", formName);
+                Logger.Warning("Insufficient permissions for submitting the specified form \"{0}\".", formName);
                 _notifier.Warning(T("The specified form \"{0}\" could not be found.", formName));
-                return Redirect(urlReferrer);
+                return new HttpNotFoundResult();
             }
             
             if (form.CreateContent != true || String.IsNullOrWhiteSpace(form.FormBindingContentType)) {
                 _notifier.Warning(T("The form \"{0}\" cannot load invalid data", formName));
                 Logger.Warning(String.Format("Attempting to display contem item s in form \"{1}\" not binded to a content type.", formName));
                 return Redirect(urlReferrer);
-            }            
+            }
 
+            form.ContentItemToEdit = _formService.GetAuthorizedContentIdToEdit(layoutPart.ContentItem, form, currentContentId, accessType);
+            
             int contentItemId = 0;
-            var contentItem = _contentManager.Get(currentContentId);
-            if (!_formService.TryGetNextContentIdAfterApplyDynamicFormCommand(layoutPart, form, command, contentItem, out contentItemId))
+            if (!_formService.TryGetNextContentIdAfterApplyDynamicFormCommand(layoutPart, form, command, layoutPart.ContentItem, out contentItemId))
                 return Redirect(urlReferrer);
 
             if (string.Compare(DynamicFormCommand.Delete.ToString(),command)==0)                
-                _contentManager.Remove(contentItem);
+                _contentManager.Remove(layoutPart.ContentItem);
 
             var query = new NameValueCollection();
             var contentLocalPath = (new UrlHelper(Request.RequestContext)).ItemDisplayUrl(layoutPart.ContentItem);

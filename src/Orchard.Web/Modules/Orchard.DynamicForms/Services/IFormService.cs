@@ -11,9 +11,11 @@ using Orchard.DynamicForms.Services.Models;
 using Orchard.Layouts.Models;
 
 namespace Orchard.DynamicForms.Services {
-    public interface IFormService : IDependency {
-        Form GetAuthorizedForm(LayoutPart layoutPart, string formName, int contenItemIdToEdit);
-        IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit);
+    public enum ContentAccessType { ForAdd, ForEdit, ForDelete, ForRead };
+
+    public interface IFormService : IDependency {       
+        Form GetAuthorizedForm(LayoutPart layoutPart, string formName, ContentAccessType accessType);
+        IContent GetAuthorizedContentIdToEdit(IContent layoutContentItem, Form form, int contenItemIdToEdit, ContentAccessType contentAccessType);
         Form FindForm(LayoutPart layoutPart, string formName = null);
         IEnumerable<Form> GetAllForms(LayoutPart layoutPart);
         IEnumerable<FormElement> GetFormElements(Form form);
