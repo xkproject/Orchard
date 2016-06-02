@@ -112,6 +112,10 @@
     <Content Include="Assets\JavaScript\Lib\jquery.validate.js" />
     <Content Include="Assets\JavaScript\Lib\jquery.validate.unobtrusive.additional.js" />
     <Content Include="Assets\JavaScript\Lib\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\TaxonomyElement.js" />
+    <Content Include="Scripts\TaxonomyElement.min.js">
+      <DependentUpon>TaxonomyElement.js</DependentUpon>
+    </Content>
     <Content Include="Styles\DynamicForms-Admin.css" />
     <Content Include="Styles\DynamicForms-Admin.min.css" />
     <Content Include="Styles\DynamicForms.css" />
@@ -141,6 +145,10 @@
     <ProjectReference Include="..\Orchard.AntiSpam\Orchard.AntiSpam.csproj">
       <Project>{91bc2e7f-da04-421c-98ef-76d37cec130c}</Project>
       <Name>Orchard.AntiSpam</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Orchard.Conditions\Orchard.Conditions.csproj">
+      <Project>{98251EAE-A41B-47B2-AA91-E28B8482DA70}</Project>
+      <Name>Orchard.Conditions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Orchard.Autoroute\Orchard.Autoroute.csproj">
       <Project>{66FCCD76-2761-47E3-8D11-B45D0001DDAA}</Project>
@@ -200,6 +208,7 @@
     <Compile Include="Bindings\EnumerationFieldBindings.cs" />
     <Compile Include="Bindings\InputFieldBindings.cs" />
     <Compile Include="Bindings\TaxonomyFieldBindings.cs" />
+    <Compile Include="Controllers\TaxonomyElementController.cs" />
     <Compile Include="Drivers\FieldsetElementDriver.cs" />
     <Compile Include="Drivers\CommandLinkElementDriver.cs" />
     <Compile Include="Drivers\UrlFieldElementDriver.cs" />
@@ -208,6 +217,7 @@
     <Compile Include="Elements\UrlField.cs" />
     <Compile Include="Bindings\NumericFieldBindings.cs" />
     <Compile Include="Forms\AddModelErrorForm.cs" />
+    <Compile Include="Forms\EditableForm.cs" />
     <Compile Include="Forms\SelectDynamicForms.cs" />
     <Compile Include="Bindings\TextFieldBindings.cs" />
     <Compile Include="Bindings\BodyPartBindings.cs" />
@@ -232,6 +242,7 @@
     <Compile Include="Handlers\LayoutEditorShapeEventHandler.cs" />
     <Compile Include="Handlers\WorkflowValidatorCoordinator.cs" />
     <Compile Include="Helpers\WriteElementValuesContextHelper.cs" />
+    <Compile Include="Helpers\EnumerableTermPartExtensions.cs" />
     <Compile Include="ResourceManifest.cs" />
     <Compile Include="Security\AuthorizationEventHandler.cs" />
     <Compile Include="Services\DynamicPermissions.cs" />
@@ -280,7 +291,6 @@
     <Compile Include="Validators\Settings\TextFieldValidationSettings.cs" />
     <Compile Include="Services\Models\ValidationSettingsBase.cs" />
     <Compile Include="Services\Models\FormEventContext.cs" />
-    <Compile Include="Drivers\ValidationElementDriver.cs" />
     <Compile Include="Drivers\BindingsElementDriver.cs" />
     <Compile Include="Drivers\TaxonomyElementDriver.cs" />
     <Compile Include="Drivers\HiddenFieldElementDriver.cs" />
@@ -562,6 +572,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\TaxonomyElement\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bundleconfig.json" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

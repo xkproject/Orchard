@@ -20,8 +20,8 @@ namespace Orchard.DynamicForms.Tokens {
                 .Token("IsValid:*", T("IsValid:<field name>"), T("The posted field validation status."))
                 .Token("FormName", T("FormName"), T("The posted form's name."));
 
-            context.For("Element", T("Element"), T("Form Element tokens to get the content that is going to be edited through a dynamic form."))
-                .Token("ContentToEdit", T("ContentToEdit"), T("The content item to edit through a form."));            
+            //context.For("Element", T("Element"), T("Form Element tokens to get the content that is going to be edited through a dynamic form."))
+            //    .Token("ContentToEdit", T("ContentToEdit"), T("The content item to edit through a form."));            
 
             context.For("Content", T("Contet Items"), T("Content Items"))
                 .Token("UrlForEditWithForm:*,", T("UrlForEditWithForm:<layoutRoute>|<formName>"), T("Url to edit the content through a dynamic form."))
@@ -39,7 +39,7 @@ namespace Orchard.DynamicForms.Tokens {
                 .Token("ContentToEdit", s => GetContentToEdit(s.Form))
                 .Chain("ContentToEdit", "Content", s => GetContentToEdit(s.Form));
 
-            context.For<Element>("Element")
+            context.For<Element>("ElementLoaded")            
                 .Token("ContentToEdit", GetContentToEdit)
                 .Chain("ContentToEdit", "Content", GetContentToEdit);
 

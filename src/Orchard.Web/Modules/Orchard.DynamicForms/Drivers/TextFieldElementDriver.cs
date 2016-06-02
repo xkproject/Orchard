@@ -1,4 +1,7 @@
-﻿using Orchard.DynamicForms.Elements;
+﻿using System;
+using Orchard.Conditions.Services;
+using Orchard.DynamicForms.Elements;
+using Orchard.DynamicForms.Services.Models;
 using Orchard.Layouts.Framework.Display;
 using Orchard.Layouts.Framework.Drivers;
 using Orchard.Layouts.Helpers;
@@ -10,16 +13,17 @@ namespace Orchard.DynamicForms.Drivers {
     public class TextFieldElementDriver : FormsElementDriver<TextField>{
         private readonly ITokenizer _tokenizer;
 
-        public TextFieldElementDriver(IFormsBasedElementServices formsServices, ITokenizer tokenizer) : base(formsServices) {
+        public TextFieldElementDriver(IFormsBasedElementServices formsServices, IConditionManager conditionManager, ITokenizer tokenizer) : base(formsServices, conditionManager, tokenizer) {
             _tokenizer = tokenizer;
         }
 
         protected override EditorResult OnBuildEditor(TextField element, ElementEditorContext context) {
             var autoLabelEditor = BuildForm(context, "AutoLabel");
+            var editableEditor = BuildForm(context, "Editable");
             var textFieldEditor = BuildForm(context, "TextField");
             var textFieldValidation = BuildForm(context, "TextFieldValidation", "Validation:10");
 
-            return Editor(context, autoLabelEditor, textFieldEditor, textFieldValidation);
+            return Editor(context, autoLabelEditor, editableEditor, textFieldEditor, textFieldValidation);
         }
 
         protected override void DescribeForm(DescribeContext context) {
@@ -79,7 +83,8 @@ namespace Orchard.DynamicForms.Drivers {
         protected override void OnDisplaying(TextField element, ElementDisplayingContext context) {
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, context.GetTokenData());
             context.ElementShape.ProcessedLabel = _tokenizer.Replace(element.Label, context.GetTokenData(), new ReplaceOptions {Encoding = ReplaceOptions.NoEncode});
-            context.ElementShape.ProcessedValue = element.RuntimeValue;
+            context.ElementShape.ProcessedValue = _tokenizer.Replace(element.RuntimeValue, context.GetTokenData());
+            context.ElementShape.Disabled = ((context.DisplayType != "Design") && !String.IsNullOrWhiteSpace(element.ReadOnlyRule) && EvaluateRule(element.ReadOnlyRule, context.GetTokenData()));
         }
     }
 }

@@ -3,8 +3,34 @@
 @using Orchard.Layouts.Helpers
 @{
     var element = (Taxonomy)Model.Element;
+    string parentTaxonomyElementName = Model.ParentTaxonomyElementName;
+    string parentTaxonomyElementInputType = Model.ParentTaxonomyElementInputType;
+    var attributes = (IDictionary<string, object>)TagBuilderExtensions.GetCommonElementAttributes(Model);
+
+    if (!string.IsNullOrWhiteSpace(parentTaxonomyElementName)) {
+        Script.Require("DynamicForms.TaxonomyElement").AtFoot();
+        if (attributes.ContainsKey("class")) {
+            attributes["class"] += " taxonomy-element";
+        }
+        else {
+            attributes.Add("class", "taxonomy-element");
+        }
+        attributes["data-taxonomy-element-ajax-url"] = Url.Action("GetChildrenTerms", "TaxonomyElement", new { contentId = Model.ContentItem.Id, formName = element.Form.Name, elementName = element.Name, area = "Orchard.DynamicForms" });
+        attributes["data-taxonomy-element-input-type"] = "CheckList";
+        attributes["data-taxonomy-element-parent-name"] = parentTaxonomyElementName;
+        attributes["data-taxonomy-element-parent-input-type"] = parentTaxonomyElementInputType;
+    }
     var name = String.IsNullOrWhiteSpace((string)Model.ProcessedName) ? "CheckList1" : (string)Model.ProcessedName;
     var tagBuilder = (OrchardTagBuilder)TagBuilderExtensions.CreateElementTagBuilder(Model, "ol");
+    tagBuilder.Attributes.Add("id",name);
+    foreach (var attribute in attributes) {
+        if (tagBuilder.Attributes.ContainsKey(attribute.Key)) {
+            tagBuilder.Attributes[attribute.Key] = " " + attribute.Value as string;
+        }
+        else {
+            tagBuilder.Attributes.Add(attribute.Key, attribute.Value as string);        
+        }
+    }
     var index = 0;
 }
 @if (element.ShowLabel) {
@@ -16,7 +42,9 @@
     inputTagBuilder.Attributes["type"] = "checkbox";
     inputTagBuilder.Attributes["name"] = element.Name;
     inputTagBuilder.Attributes["value"] = option.Value;
-
+    if (Model.Disabled) {
+        inputTagBuilder.Attributes["disabled"] = null;
+    }
     if (option.Selected) {
         inputTagBuilder.Attributes["checked"] = "checked";
     }
@@ -24,7 +52,7 @@
     if (element.ValidationSettings.Required == true && index == 0) {
         inputTagBuilder.AddClientValidationAttributes((IDictionary<string, string>)Model.ClientValidationAttributes);
     }
-    <li>
+    <li class="checkbox">
         <label>
             @inputTagBuilder.ToHtmlString(TagRenderMode.SelfClosing)
             @option.Text

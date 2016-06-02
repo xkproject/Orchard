@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Orchard.Conditions.Services;
 using Orchard.Forms.Services;
 using Orchard.Layouts.Framework.Elements;
 using Orchard.Layouts.Helpers;
@@ -10,10 +11,15 @@ namespace Orchard.Layouts.Framework.Drivers {
     public abstract class FormsElementDriver<TElement> : ElementDriver<TElement>, IFormProvider where TElement : Element {
         private readonly IFormManager _formManager;
         private readonly ICultureAccessor _cultureAccessor;
+        private readonly IConditionManager _conditionManager;
+        private readonly Orchard.Tokens.ITokenizer _tokenizer;
+        private readonly Dictionary<string, bool> _evaluations = new Dictionary<string, bool>();
 
-        protected FormsElementDriver(IFormsBasedElementServices formsServices) {
+        protected FormsElementDriver(IFormsBasedElementServices formsServices, IConditionManager conditionManager, Orchard.Tokens.ITokenizer tokenizer) {
             _formManager = formsServices.FormManager;
             _cultureAccessor = formsServices.CultureAccessor;
+            _conditionManager = conditionManager;
+            _tokenizer = tokenizer;
         }
 
         protected dynamic BuildForm(ElementEditorContext context, string formName, string position = null) {
@@ -71,6 +77,16 @@ namespace Orchard.Layouts.Framework.Drivers {
             return formShape;
         }
 
+        protected bool EvaluateRule(string rule, object tokenData) {
+            if (_evaluations.ContainsKey(rule))
+                return _evaluations[rule];
+            
+            rule = _tokenizer.Replace(rule, tokenData);
+            var result = _conditionManager.Matches(rule);
+            _evaluations[rule] = result;
+            return result;
+        }
+
         private void UpdateElementProperty(dynamic formElementShape, ElementEditorContext context) {
             var name = (string)formElementShape.Name;
             if (name != null) {
@@ -85,7 +101,7 @@ namespace Orchard.Layouts.Framework.Drivers {
                     }
                 }
             }
-        }
+        }        
 
         public void Describe(DescribeContext context) {
             DescribeForm(context);

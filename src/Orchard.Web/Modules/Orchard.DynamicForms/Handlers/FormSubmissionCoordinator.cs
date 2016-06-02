@@ -49,7 +49,7 @@ namespace Orchard.DynamicForms.Handlers {
             // Create content item.
             var contentItem = default(ContentItem);
             if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType)) {
-                if (context.ContentIdToEdit == 0)
+                if (form.ContentItemToEdit == null)
                     formService.CreateContentItem(context.Content, form, context.ValueProvider);
                 else if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType))
                     formService.UpdateContentItem(context.Content, form, context.ValueProvider);

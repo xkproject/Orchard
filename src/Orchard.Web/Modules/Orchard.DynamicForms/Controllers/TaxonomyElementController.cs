@@ -1,0 +1,99 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+using Orchard.DynamicForms.Elements;
+using Orchard.DynamicForms.Services;
+using Orchard.Layouts.Services;
+using Orchard.Security;
+using Orchard.Taxonomies.Models;
+using Orchard.Taxonomies.Services;
+using Orchard.Themes;
+using Orchard.DynamicForms.Helpers;
+using Orchard.Tokens;
+using System;
+using Orchard.ContentManagement;
+
+namespace Orchard.DynamicForms.Controllers
+{
+    [Themed(false)]
+    public class TaxonomyElementController : Controller
+    {
+        private readonly ILayoutManager _layoutManager;
+        private readonly IFormService _formService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly ITaxonomyService _taxonomyService;
+        private readonly ITokenizer _tokenizer;
+        private readonly IContentManager _contentManager; 
+
+        public TaxonomyElementController(ILayoutManager layoutManager, 
+                                        IFormService formService, 
+                                        ITaxonomyService taxonomyService, 
+                                        ITokenizer tokenizer,
+                                        IAuthenticationService authenticationService,
+                                        IAuthorizationService authorizationService,
+                                        IContentManager contentManager) {
+            _layoutManager = layoutManager;
+            _formService = formService;
+            _taxonomyService = taxonomyService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
+            _tokenizer = tokenizer;
+            _contentManager = contentManager;
+        }
+
+        public ActionResult GetChildrenTerms(int contentId, string formName, string elementName, string parentTermIds) {
+            
+            var layoutPart = _layoutManager.GetLayout(contentId);
+            if (layoutPart == null)
+                return new HttpNotFoundResult();
+            var form = _formService.FindForm(layoutPart, formName);
+            if (form == null)
+                return new HttpNotFoundResult();
+            var element = _formService.GetFormElements(form).FirstOrDefault(e => e.Name == elementName) as Taxonomy;
+            if (element == null || !element.TaxonomyId.HasValue)
+                return new HttpNotFoundResult();
+            
+            var user = _authenticationService.GetAuthenticatedUser();
+            
+            if (!_authorizationService.TryCheckAccess(Permissions.SubmitAnyForm, user, layoutPart.ContentItem, formName)
+                &&
+                Permissions.GetOwnerVariation(Permissions.SubmitAnyForm) != null
+                &&
+                !(_authorizationService.TryCheckAccess(Permissions.GetOwnerVariation(Permissions.SubmitAnyForm), user, layoutPart.ContentItem, formName))
+                )
+                return new HttpUnauthorizedResult();
+
+            var result = new List<object>();
+            var optionLabel = element.OptionLabel;
+            if (!String.IsNullOrWhiteSpace(optionLabel)) {
+                result.Add(new { text = _tokenizer.Replace(optionLabel, null), value = string.Empty });
+            }
+            if (string.IsNullOrWhiteSpace(parentTermIds))
+                return Json(result, JsonRequestBehavior.AllowGet);
+            int id = 0;
+            var arrayOfParentTermIds = parentTermIds.Split(',')
+                .Where(s=>int.TryParse(s,out id)).Select(s=>id).ToList();
+            var parentTerms = _contentManager.GetMany<TermPart>(arrayOfParentTermIds, VersionOptions.Published, QueryHints.Empty).Where(t=>t.TaxonomyId == element.TaxonomyId.Value);
+            
+            if (parentTerms == null || !parentTerms.Any())
+                return Json(result, JsonRequestBehavior.AllowGet);
+
+            List<TermPart> terms = new List<TermPart>();
+            foreach (var parentTerm in parentTerms) {
+                terms.AddRange(_taxonomyService.GetChildren(parentTerm, false, element.LevelsToRender.GetValueOrDefault()));
+            }
+            var projection = terms.GetSelectListItems(element, _tokenizer);
+            
+            foreach (var item in projection) {
+                result.Add(new {
+                    text = item.Text,
+                    value = item.Value,                    
+                });
+            }
+
+            // Return JSON
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+    }
+}
