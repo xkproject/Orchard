@@ -1,3 +1,7 @@
 [submodule "src/Orchard.Web/ThirdParty/Modules/Downplay.Orchard.LayoutSelector"]
 	path = src/Orchard.Web/ThirdParty/Modules/Downplay.Orchard.LayoutSelector
 	url = https://github.com/xkproject/Downplay.Orchard.LayoutSelector.git
+[submodule "src/Orchard.Web/ThirdParty/Modules/SH.Robots"]
+	path = src/Orchard.Web/ThirdParty/Modules/SH.Robots
+	url = https://github.com/xkproject/SH.Robots.git
+	branch = heads/SH.Robots/master
