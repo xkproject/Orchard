@@ -158,6 +158,8 @@ namespace Orchard.DynamicForms.Drivers {
         }
 
         protected override void OnCreatingDisplay(Form element, ElementCreatingDisplayShapeContext context) {
+            if (string.IsNullOrWhiteSpace(element.FormBindingContentType))
+                return;
             var controller = _currentControllerAccessor.CurrentController;
             int contentItemIdToEdit = 0;
             string contentIdToEditParam = controller.Request.QueryString[HttpUtility.UrlEncode(element.Name + "Form_edit")];
