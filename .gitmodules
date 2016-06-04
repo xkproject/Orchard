@@ -4,4 +4,4 @@
 [submodule "src/Orchard.Web/ThirdParty/Modules/SH.Robots"]
 	path = src/Orchard.Web/ThirdParty/Modules/SH.Robots
 	url = https://github.com/xkproject/SH.Robots.git
-	branch = remotes/SH.Robots
+	branch = heads/SH.Robots/master

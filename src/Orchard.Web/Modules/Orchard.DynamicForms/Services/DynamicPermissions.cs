@@ -23,6 +23,8 @@ namespace Orchard.DynamicForms {
         public static readonly Permission SubmitAnyFormInAContentTypeForModifyOwnData = new Permission { Description = "Submit any form in {0} for modify own data", Name = "SubmitForModifyOwn_contentType_{0}", ImpliedBy = new[] { Permissions.SubmitAnyFormForModifyData, Permissions.SubmitAnyFormForModifyOwnData, SubmitAnyFormInAContentTypeForModifyData } };
         public static readonly Permission SubmitAnyFormInAContentTypeForDeleteData = new Permission { Description = "Submit any form in {0} for delete data own by others", Name = "SubmitForDelete_contentType_{0}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData } };
         public static readonly Permission SubmitAnyFormInAContentTypeForDeleteOwnData = new Permission { Description = "Submit any form in {0} for delete own data", Name = "SubmitForDeleteOwn_contentType_{0}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData, Permissions.SubmitAnyFormForDeleteOwnData, SubmitAnyFormInAContentTypeForDeleteData } };
+        public static readonly Permission ShowAnyFormInAContentType = new Permission { Description = "Show any form in {0} with data own by others", Name = "Show_contentType_{0}", ImpliedBy = new[] { Permissions.ShowAnyForm, SubmitAnyFormInAContentTypeForModifyData } };
+        public static readonly Permission ShowAnyFormInAContentTypeWithOwnData = new Permission { Description = "Show any form in {0} with own data", Name = "ShowWithOwn_contentType_{0}", ImpliedBy = new[] { Permissions.ShowAnyForm, Permissions.ShowAnyFormWithOwnData, ShowAnyFormInAContentType, SubmitAnyFormInAContentTypeForModifyOwnData } };
 
         //Dynamic Permissions per content item
         public static readonly Permission SubmitAnyFormInAContentItem = new Permission { Description = "Submit any form", Name = "Submit_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.SubmitAnyForm } };
@@ -30,12 +32,16 @@ namespace Orchard.DynamicForms {
         public static readonly Permission SubmitAnyFormInAContentItemForModifyOwnData = new Permission { Description = "Submit any form for modify own data", Name = "SubmitForModifyOwn_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.SubmitAnyFormForModifyData, Permissions.SubmitAnyFormForModifyOwnData, SubmitAnyFormInAContentItemForModifyData } };
         public static readonly Permission SubmitAnyFormInAContentItemForDeleteData = new Permission { Description = "Submit any form for delete data own by others", Name = "SubmitForDelete_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData } };
         public static readonly Permission SubmitAnyFormInAContentItemForDeleteOwnData = new Permission { Description = "Submit any form for delete own data", Name = "SubmitForDeleteOwn_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData, Permissions.SubmitAnyFormForDeleteOwnData, SubmitAnyFormInAContentItemForDeleteData } };
+        public static readonly Permission ShowAnyFormInAContentItem = new Permission { Description = "Show any form", Name = "Show_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.ShowAnyForm, SubmitAnyFormInAContentItemForModifyData } };
+        public static readonly Permission ShowAnyFormInAContentItemWithOwnData = new Permission { Description = "Show any form with own data", Name = "ShowWhithOwn_contentType_{0}_contentItem_{1}", ImpliedBy = new[] { Permissions.ShowAnyForm, Permissions.ShowAnyFormWithOwnData, ShowAnyFormInAContentItem, SubmitAnyFormInAContentItemForModifyOwnData } };
 
         private static readonly Permission SubmitAFormInAContentItem = new Permission { Description = "Submit {2} form", Name = "Submit_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.SubmitAnyForm, SubmitAnyFormInAContentItem } };
         private static readonly Permission SubmitAFormInAContentItemForModifyData = new Permission { Description = "Submit {2} form for modify data own by others", Name = "SubmitForModify_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.SubmitAnyFormForModifyData, SubmitAnyFormInAContentItemForModifyData } };
         private static readonly Permission SubmitAFormInAContentItemForModifyOwnData = new Permission { Description = "Submit {2} form for modify own data", Name = "SubmitForModifyOwn_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.SubmitAnyFormForModifyData, Permissions.SubmitAnyFormForModifyOwnData, SubmitAnyFormInAContentItemForModifyData, SubmitAnyFormInAContentItemForModifyOwnData, SubmitAFormInAContentItemForModifyData } };
         private static readonly Permission SubmitAFormInAContentItemForDeleteData = new Permission { Description = "Submit {2} form for delete data own by others", Name = "SubmitForDelete_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData, SubmitAnyFormInAContentItemForDeleteData } };
         private static readonly Permission SubmitAFormInAContentItemForDeleteOwnData = new Permission { Description = "Submit {2} form for delete own data", Name = "SubmitForDeleteOwn_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.SubmitAnyFormForDeleteData, Permissions.SubmitAnyFormForDeleteOwnData, SubmitAnyFormInAContentItemForDeleteData, SubmitAnyFormInAContentItemForDeleteOwnData, SubmitAFormInAContentItemForDeleteData } };
+        private static readonly Permission ShowAFormInAContentItem = new Permission { Description = "Show {2} form", Name = "Show_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.ShowAnyForm, ShowAnyFormInAContentItem, SubmitAFormInAContentItemForModifyData } };
+        private static readonly Permission ShowAFormInAContentItemWithOwnData = new Permission { Description = "Show {2} form with own data", Name = "ShowWithOwn_contentType_{0}_contentItem_{1}_form_{2}", ImpliedBy = new[] { Permissions.ShowAnyForm, Permissions.ShowAnyFormWithOwnData, ShowAnyFormInAContentItem, ShowAnyFormInAContentItemWithOwnData, ShowAFormInAContentItem, SubmitAFormInAContentItemForModifyOwnData } };
 
         public static readonly Dictionary<string, Permission> PermissionTemplates = new Dictionary<string, Permission> {
             {Permissions.SubmitAnyForm.Name, SubmitAnyFormInAContentType},
@@ -43,32 +49,45 @@ namespace Orchard.DynamicForms {
             {Permissions.SubmitAnyFormForModifyOwnData.Name, SubmitAnyFormInAContentTypeForModifyOwnData},
             {Permissions.SubmitAnyFormForDeleteData.Name, SubmitAnyFormInAContentTypeForDeleteData},
             {Permissions.SubmitAnyFormForDeleteOwnData.Name, SubmitAnyFormInAContentTypeForDeleteOwnData},
+            {Permissions.ShowAnyForm.Name, ShowAnyFormInAContentType},
+            {Permissions.ShowAnyFormWithOwnData.Name, ShowAnyFormInAContentTypeWithOwnData},
+
             {SubmitAnyFormInAContentType.Name, SubmitAnyFormInAContentItem},
             {SubmitAnyFormInAContentTypeForModifyData.Name, SubmitAnyFormInAContentItemForModifyData},
             {SubmitAnyFormInAContentTypeForModifyOwnData.Name, SubmitAnyFormInAContentItemForModifyOwnData},
             {SubmitAnyFormInAContentTypeForDeleteData.Name, SubmitAnyFormInAContentItemForDeleteData},
             {SubmitAnyFormInAContentTypeForDeleteOwnData.Name, SubmitAnyFormInAContentItemForDeleteOwnData},
+            {ShowAnyFormInAContentType.Name, ShowAnyFormInAContentItem},
+            {ShowAnyFormInAContentTypeWithOwnData.Name, ShowAnyFormInAContentItemWithOwnData},
+
             {SubmitAnyFormInAContentItem.Name, SubmitAFormInAContentItem},
             {SubmitAnyFormInAContentItemForModifyData.Name, SubmitAFormInAContentItemForModifyData},
             {SubmitAnyFormInAContentItemForModifyOwnData.Name, SubmitAFormInAContentItemForModifyOwnData},
             {SubmitAnyFormInAContentItemForDeleteData.Name, SubmitAFormInAContentItemForDeleteData},
-            {SubmitAnyFormInAContentItemForDeleteOwnData.Name, SubmitAFormInAContentItemForDeleteOwnData}
+            {SubmitAnyFormInAContentItemForDeleteOwnData.Name, SubmitAFormInAContentItemForDeleteOwnData},
+            {ShowAnyFormInAContentItem.Name, ShowAFormInAContentItem},
+            {ShowAnyFormInAContentItemWithOwnData.Name, ShowAFormInAContentItemWithOwnData}
         };
 
-        public static readonly List<Permission> PermissionPerContentTypeTemplates = new List<Permission> { SubmitAnyFormInAContentType,
+        public static readonly List<Permission> PermissionPerContentTypeTemplates = new List<Permission> {
+            SubmitAnyFormInAContentType,
             SubmitAnyFormInAContentTypeForModifyData, SubmitAnyFormInAContentTypeForModifyOwnData,
-            SubmitAnyFormInAContentTypeForDeleteData, SubmitAnyFormInAContentTypeForDeleteOwnData
+            SubmitAnyFormInAContentTypeForDeleteData, SubmitAnyFormInAContentTypeForDeleteOwnData,
+            ShowAnyFormInAContentType,
+            ShowAnyFormInAContentTypeWithOwnData
         };
 
         public static readonly List<Permission> PermissionPerContentItemTemplates = new List<Permission> { SubmitAnyFormInAContentItem,
             SubmitAnyFormInAContentItemForModifyData, SubmitAnyFormInAContentItemForModifyOwnData,
-            SubmitAnyFormInAContentItemForDeleteData, SubmitAnyFormInAContentItemForDeleteOwnData
+            SubmitAnyFormInAContentItemForDeleteData, SubmitAnyFormInAContentItemForDeleteOwnData,
+            ShowAnyFormInAContentItem, ShowAnyFormInAContentItemWithOwnData
         };
     
 
         public static readonly List<Permission> PermissionPerContentItemWithFormsTemplates = new List<Permission> {
             SubmitAFormInAContentItem, SubmitAFormInAContentItemForModifyData, SubmitAFormInAContentItemForModifyOwnData,
-            SubmitAFormInAContentItemForDeleteData, SubmitAFormInAContentItemForDeleteOwnData
+            SubmitAFormInAContentItemForDeleteData, SubmitAFormInAContentItemForDeleteOwnData,
+            ShowAFormInAContentItem, ShowAFormInAContentItemWithOwnData
         };
 
         public virtual Feature Feature { get; set; }
@@ -141,16 +160,20 @@ namespace Orchard.DynamicForms {
         }
 
         private static string GetDynamicCategory(Permission template, string displayText, string typeDefinition, Localizer T) {
-            if (template.Name == SubmitAnyFormInAContentItem.Name
+            if ( template.Name == SubmitAnyFormInAContentItem.Name
                 || template.Name == SubmitAnyFormInAContentItemForModifyData.Name
                 || template.Name == SubmitAnyFormInAContentItemForModifyOwnData.Name
                 || template.Name == SubmitAnyFormInAContentItemForDeleteData.Name
                 || template.Name == SubmitAnyFormInAContentItemForDeleteOwnData.Name
+                || template.Name == ShowAnyFormInAContentItem.Name
+                || template.Name == ShowAnyFormInAContentItemWithOwnData.Name
                 || template.Name == SubmitAFormInAContentItem.Name
                 || template.Name == SubmitAFormInAContentItemForModifyData.Name
                 || template.Name == SubmitAFormInAContentItemForModifyOwnData.Name
                 || template.Name == SubmitAFormInAContentItemForDeleteData.Name
                 || template.Name == SubmitAFormInAContentItemForDeleteOwnData.Name
+                || template.Name == ShowAFormInAContentItem.Name
+                || template.Name == ShowAFormInAContentItemWithOwnData.Name
                 )
                 return T("{0} - {1}", typeDefinition, displayText).ToString();
             else if (template.Name == SubmitAnyFormInAContentType.Name
@@ -158,6 +181,8 @@ namespace Orchard.DynamicForms {
                 || template.Name == SubmitAnyFormInAContentTypeForModifyOwnData.Name
                 || template.Name == SubmitAnyFormInAContentTypeForDeleteData.Name
                 || template.Name == SubmitAnyFormInAContentTypeForDeleteOwnData.Name
+                || template.Name == ShowAnyFormInAContentType.Name
+                || template.Name == ShowAnyFormInAContentTypeWithOwnData.Name
                 )
                 return T("{0}", typeDefinition, displayText).ToString();
             else
@@ -169,10 +194,12 @@ namespace Orchard.DynamicForms {
             if (impliedBy == null)
                 return result;
             foreach (var permission in impliedBy) {
-
-                if (permission.Name == Permissions.ManageForms.Name || permission.Name == Permissions.SubmitAnyForm.Name 
+                if (permission.Name == Permissions.ManageForms.Name                    
+                    || permission.Name == Permissions.SubmitAnyForm.Name 
                     || permission.Name == Permissions.SubmitAnyFormForModifyData.Name || permission.Name == Permissions.SubmitAnyFormForModifyOwnData.Name
-                    || permission.Name == Permissions.SubmitAnyFormForDeleteData.Name || permission.Name == Permissions.SubmitAnyFormForDeleteOwnData.Name)
+                    || permission.Name == Permissions.SubmitAnyFormForDeleteData.Name || permission.Name == Permissions.SubmitAnyFormForDeleteOwnData.Name
+                    || permission.Name == Permissions.ShowAnyForm.Name || permission.Name == Permissions.ShowAnyFormWithOwnData.Name
+                    )
                     result.Add(permission);
                 else
                     result.Add(CreateDynamicPermission(permission, typeDefinition, content, formName, T, contentManager));

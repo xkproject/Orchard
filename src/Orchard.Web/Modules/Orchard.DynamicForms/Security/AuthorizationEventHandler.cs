@@ -31,7 +31,8 @@ namespace Orchard.DynamicForms.Security {
             if (!context.Granted &&
                 context.Content.Is<LayoutPart>()) {
 
-                if ((context.Permission.Name == Permissions.SubmitAnyFormForModifyData.Name 
+                if ((context.Permission.Name == Permissions.ShowAnyForm.Name
+                    || context.Permission.Name == Permissions.SubmitAnyFormForModifyData.Name 
                     || context.Permission.Name == Permissions.SubmitAnyFormForDeleteData.Name )
                     && HasOwnership(context.User, context.Content)) {
                     context.Adjusted = true;
