@@ -23,6 +23,16 @@ namespace Orchard.DynamicForms.Elements {
             get { return this.Retrieve(x => x.LevelsToRender); }
             set { this.Store(x => x.LevelsToRender, value); }
         }
+        public string TermsToSkipByItsSlug
+        {
+            get { return this.Retrieve(x => x.TermsToSkipByItsSlug); }
+            set { this.Store(x => x.TermsToSkipByItsSlug, value); }
+        }
+        public bool WhenReadOnlyShowOnlySelectedTerms
+        {
+            get { return this.Retrieve(x => x.WhenReadOnlyShowOnlySelectedTerms); }
+            set { this.Store(x => x.WhenReadOnlyShowOnlySelectedTerms, value); }
+        }        
         public string SortOrder {
             get { return this.Retrieve(x => x.SortOrder); }
             set { this.Store(x => x.SortOrder, value); }

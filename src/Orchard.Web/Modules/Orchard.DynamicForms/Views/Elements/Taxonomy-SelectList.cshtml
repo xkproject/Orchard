@@ -8,6 +8,9 @@
     if (Model.Disabled) {
         attributes["disabled"] = null;
     }
+    if (Model.ShowOnlySelectedTerms) {
+        attributes["data-show-only-selected-terms"] = "true";
+    }
     if (!string.IsNullOrWhiteSpace(parentTaxonomyElementName)) {
         Script.Require("DynamicForms.TaxonomyElement").AtFoot();
         if (attributes.ContainsKey("class")) {
@@ -20,7 +23,6 @@
         attributes["data-taxonomy-element-input-type"] = "SelectList";
         attributes["data-taxonomy-element-parent-name"] = parentTaxonomyElementName;
         attributes["data-taxonomy-element-parent-input-type"] = parentTaxonomyElementInputType;
-
     }
     var name = String.IsNullOrWhiteSpace((string)Model.ProcessedName) ? "SelectList1" : (string)Model.ProcessedName;
     var options = (IEnumerable<SelectListItem>)Model.TermOptions;

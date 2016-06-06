@@ -80,8 +80,10 @@ namespace Orchard.DynamicForms.Controllers
                 return Json(result, JsonRequestBehavior.AllowGet);
 
             List<TermPart> terms = new List<TermPart>();
+            var termsToSkipByItsSlug = (element.TermsToSkipByItsSlug??"").Split(new[] { "," },StringSplitOptions.RemoveEmptyEntries);
             foreach (var parentTerm in parentTerms) {
-                terms.AddRange(_taxonomyService.GetChildren(parentTerm, false, element.LevelsToRender.GetValueOrDefault()));
+                var children = _taxonomyService.GetChildren(parentTerm, false, element.LevelsToRender.GetValueOrDefault());
+                terms.AddRange(children.Where(c => !termsToSkipByItsSlug.Contains(c.Slug)));
             }
             var projection = terms.GetSelectListItems(element, _tokenizer);
             

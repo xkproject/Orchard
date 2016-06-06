@@ -6,7 +6,12 @@
     string parentTaxonomyElementName = Model.ParentTaxonomyElementName;
     string parentTaxonomyElementInputType = Model.ParentTaxonomyElementInputType;
     var attributes = (IDictionary<string, object>)TagBuilderExtensions.GetCommonElementAttributes(Model);
-
+    if (Model.Disabled) {
+        attributes["disabled"] = null;
+    }
+    if (Model.ShowOnlySelectedTerms) {
+        attributes["data-show-only-selected-terms"] = "true";
+    }
     if (!string.IsNullOrWhiteSpace(parentTaxonomyElementName)) {
         Script.Require("DynamicForms.TaxonomyElement").AtFoot();
         if (attributes.ContainsKey("class")) {
@@ -28,7 +33,7 @@
             tagBuilder.Attributes[attribute.Key] = " " + attribute.Value as string;
         }
         else {
-            tagBuilder.Attributes.Add(attribute.Key, attribute.Value as string);        
+            tagBuilder.Attributes.Add(attribute.Key, attribute.Value as string);
         }
     }
     var index = 0;
