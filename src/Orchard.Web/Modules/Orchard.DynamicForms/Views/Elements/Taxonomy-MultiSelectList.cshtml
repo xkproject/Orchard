@@ -8,6 +8,9 @@
     if (Model.Disabled) {
         attributes["disabled"] = null;
     }
+    if (Model.ShowOnlySelectedTerms) {
+        attributes["data-show-only-selected-terms"] = "true";
+    }
     if (!string.IsNullOrWhiteSpace(parentTaxonomyElementName)) {
         Script.Require("DynamicForms.TaxonomyElement").AtFoot();
         if (attributes.ContainsKey("class")) {

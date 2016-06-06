@@ -72,6 +72,18 @@ namespace Orchard.DynamicForms.Drivers {
                         Title: "Number of Levels to render",
                         Classes: new[] { "text", "small" },
                         Description: T("Select the numbers of levels to render. A 0 value means all the levels will be rendered.")),
+                    _WhenReadOnlyShowOnlySelectedTerms: shape.Checkbox(
+                        Id: "WhenReadOnlyShowOnlySelectedTerms",
+                        Name: "WhenReadOnlyShowOnlySelectedTerms",
+                        Title: "WhenReadOnlyShowOnlySelectedTerms",
+                        Value: "true",
+                        Description: T("Tick this checkbox to show only selected terms when element is rendered in read only mode.")),
+                    _TermsToSkipByItsSlug: shape.Textbox(
+                        Id: "TermsToSkipByItsSlug",
+                        Name: "TermsToSkipByItsSlug",
+                        Title: "Terms to Skip By Its Slug",
+                        Classes: new[] { "text", "large" },
+                        Description: T("Set a comma separated list of term's slugs you don't want this element shows to the user.")),
                     _SortOrder: shape.SelectList(
                         Id: "SortOrder",
                         Name: "SortOrder",
@@ -158,8 +170,12 @@ namespace Orchard.DynamicForms.Drivers {
                 }
             }
             context.ElementShape.ProcessedLabel = _tokenizer.Replace(element.Label, tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
-            context.ElementShape.TermOptions = GetTermOptions(element, context.DisplayType, taxonomyId, tokenData).ToArray();
-            context.ElementShape.Disabled = ((context.DisplayType != "Design") && !String.IsNullOrWhiteSpace(element.ReadOnlyRule) && EvaluateRule(element.ReadOnlyRule, context.GetTokenData()));
+            var disabled = ((context.DisplayType != "Design") && !String.IsNullOrWhiteSpace(element.ReadOnlyRule) && EvaluateRule(element.ReadOnlyRule, context.GetTokenData()));
+            context.ElementShape.Disabled = disabled;
+            bool? showOnlySelectedTerms = disabled ? element.WhenReadOnlyShowOnlySelectedTerms : false;
+            context.ElementShape.ShowOnlySelectedTerms = showOnlySelectedTerms.Value;
+            context.ElementShape.TermOptions = GetTermOptions(element, context.DisplayType, taxonomyId, tokenData, showOnlySelectedTerms.Value).ToArray();
+            
             context.ElementShape.Metadata.Alternates.Add(String.Format("Elements_{0}__{1}", typeName, element.InputType));
             context.ElementShape.Metadata.Alternates.Add(String.Format("Elements_{0}_{1}__{2}", typeName, displayType, element.InputType));
         }
@@ -182,7 +198,7 @@ namespace Orchard.DynamicForms.Drivers {
             element.TaxonomyId = taxonomy.Id;
         }
         
-        private IEnumerable<SelectListItem> GetTermOptions(Taxonomy element, string displayType, int? taxonomyId, IDictionary<string, object> tokenData) {
+        private IEnumerable<SelectListItem> GetTermOptions(Taxonomy element, string displayType, int? taxonomyId, IDictionary<string, object> tokenData, bool showOnlySelectedTerms) {
             var optionLabel = element.OptionLabel;
             var runtimeValues = GetRuntimeValues(element);
 
@@ -223,10 +239,12 @@ namespace Orchard.DynamicForms.Drivers {
             else
                 yield break;
 
-            IEnumerable<SelectListItem> projection = terms.GetSelectListItems(element,_tokenizer, runtimeValues);
+            var termsToSkipByItsSlug = (element.TermsToSkipByItsSlug ?? "").Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            IEnumerable<SelectListItem> projection = terms.Where(c => !termsToSkipByItsSlug.Contains(c.Slug)).GetSelectListItems(element,_tokenizer, runtimeValues);
 
             foreach (var item in projection) {
-                yield return item;
+                if (!showOnlySelectedTerms || (showOnlySelectedTerms && item.Selected))
+                    yield return item;
             }
         }
 
