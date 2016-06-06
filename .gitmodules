@@ -5,3 +5,9 @@
 	path = src/Orchard.Web/ThirdParty/Modules/SH.Robots
 	url = https://github.com/xkproject/SH.Robots.git
 	
+[submodule "src/Orchard.Web/ThirdParty/Modules/Piedone.HelpfulLibraries"]
+	path = src/Orchard.Web/ThirdParty/Modules/Piedone.HelpfulLibraries
+	url = https://github.com/xkproject/Helpful-Libraries.git
+[submodule "src/Orchard.Web/ThirdParty/Modules/Piedone.Combinator"]
+	path = src/Orchard.Web/ThirdParty/Modules/Piedone.Combinator
+	url = https://github.com/xkproject/Combinator.git
