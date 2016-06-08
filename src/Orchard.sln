@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E9C9F120-07BA-4DFB-B9C3-3AFB9D44C9D5}"
 EndProject
@@ -339,6 +339,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piedone.Combinator", "Orchard.Web\ThirdParty\Modules\Piedone.Combinator\Piedone.Combinator.csproj", "{C2F88C61-ED65-400A-AAA3-12518108EB8D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Piedone.HelpfulLibraries", "Orchard.Web\ThirdParty\Modules\Piedone.HelpfulLibraries\Piedone.HelpfulLibraries.csproj", "{EA61AD10-39D6-41A9-B12B-227F50C54158}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCCom.MainBit.Projections.ClientSide", "Orchard.Web\Orchard.XK\Modules\PCCom.MainBit.Projections.ClientSide\PCCom.MainBit.Projections.ClientSide.csproj", "{847835FD-4389-447A-A0C0-8C49C77DB3D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1356,6 +1358,16 @@ Global
 		{EA61AD10-39D6-41A9-B12B-227F50C54158}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{EA61AD10-39D6-41A9-B12B-227F50C54158}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA61AD10-39D6-41A9-B12B-227F50C54158}.Release|Any CPU.Build.0 = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Coverage|Any CPU.Build.0 = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1462,6 +1474,7 @@ Global
 		{EAACA94E-303E-4CBF-98BB-DD12018E93B7} = {9F090F5B-3230-44FB-9F95-E93E21AC09A5}
 		{C2F88C61-ED65-400A-AAA3-12518108EB8D} = {9F090F5B-3230-44FB-9F95-E93E21AC09A5}
 		{EA61AD10-39D6-41A9-B12B-227F50C54158} = {9F090F5B-3230-44FB-9F95-E93E21AC09A5}
+		{847835FD-4389-447A-A0C0-8C49C77DB3D2} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\TransientFaultHandling.Core.5.1.1209.1\lib\NET4
