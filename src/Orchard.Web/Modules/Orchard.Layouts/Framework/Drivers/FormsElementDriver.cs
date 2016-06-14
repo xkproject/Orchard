@@ -77,7 +77,7 @@ namespace Orchard.Layouts.Framework.Drivers {
             return formShape;
         }
 
-        protected bool EvaluateRule(string rule, object tokenData) {
+        protected bool EvaluateRule(string rule, IDictionary<string, object> tokenData) {
             if (_evaluations.ContainsKey(rule))
                 return _evaluations[rule];
             
