@@ -137,8 +137,8 @@ namespace Orchard.DynamicForms.Controllers {
             if (!_formService.TryGetNextContentIdAfterApplyDynamicFormCommand(layoutPart, form, command, layoutPart.ContentItem, out contentItemId))
                 return Redirect(urlReferrer);
 
-            if (string.Compare(DynamicFormCommand.Delete.ToString(),command)==0)                
-                _contentManager.Remove(layoutPart.ContentItem);
+            if (string.Compare(DynamicFormCommand.Delete.ToString(),command)==0)
+                _contentManager.Remove(form.ContentItemToEdit.ContentItem);
 
             var query = new NameValueCollection();
             var contentLocalPath = (new UrlHelper(Request.RequestContext)).ItemDisplayUrl(layoutPart.ContentItem);
