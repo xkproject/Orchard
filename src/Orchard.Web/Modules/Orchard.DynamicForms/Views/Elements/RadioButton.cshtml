@@ -23,3 +23,11 @@
 else {
     @tagBuilder.ToHtmlString(TagRenderMode.SelfClosing)
 }
+@if (Model.Disabled) {
+    tagBuilder = TagBuilderExtensions.CreateElementTagBuilder(Model, "input");
+
+    tagBuilder.Attributes["type"] = "hidden";
+    tagBuilder.Attributes["value"] = (string)Model.ProcessedValue;
+    tagBuilder.Attributes["name"] = (string)Model.ProcessedName;
+    @tagBuilder.ToHtmlString(TagRenderMode.SelfClosing)
+}

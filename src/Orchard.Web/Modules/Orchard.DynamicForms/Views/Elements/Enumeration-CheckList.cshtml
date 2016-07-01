@@ -38,3 +38,11 @@
 @if (element.ValidationSettings.ShowValidationMessage == true) {
     @Html.ValidationMessage((string)Model.ProcessedName)
 }
+@if (Model.Disabled) {
+    tagBuilder = TagBuilderExtensions.CreateElementTagBuilder(Model, "input");
+
+    tagBuilder.Attributes["type"] = "hidden";
+    tagBuilder.Attributes["value"] = (string)Model.RuntimeValue;
+    tagBuilder.Attributes["name"] = (string)Model.ProcessedName;
+    @tagBuilder.ToHtmlString(TagRenderMode.SelfClosing)
+}

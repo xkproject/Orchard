@@ -175,7 +175,8 @@ namespace Orchard.DynamicForms.Drivers {
             bool? showOnlySelectedTerms = disabled ? element.WhenReadOnlyShowOnlySelectedTerms : false;
             context.ElementShape.ShowOnlySelectedTerms = showOnlySelectedTerms.Value;
             context.ElementShape.TermOptions = GetTermOptions(element, context.DisplayType, taxonomyId, tokenData, showOnlySelectedTerms.Value).ToArray();
-            
+            context.ElementShape.RuntimeValue = element.RuntimeValue;
+
             context.ElementShape.Metadata.Alternates.Add(String.Format("Elements_{0}__{1}", typeName, element.InputType));
             context.ElementShape.Metadata.Alternates.Add(String.Format("Elements_{0}_{1}__{2}", typeName, displayType, element.InputType));
         }
