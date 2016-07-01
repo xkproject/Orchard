@@ -70,7 +70,7 @@
     @Html.ValidationMessage(name)
 }
 @if (Model.Disabled) {
-    var tagBuilder = TagBuilderExtensions.CreateElementTagBuilder(Model, "input");
+    tagBuilder = TagBuilderExtensions.CreateElementTagBuilder(Model, "input");
 
     tagBuilder.Attributes["type"] = "hidden";
     tagBuilder.Attributes["value"] = (string)Model.RuntimeValue;
