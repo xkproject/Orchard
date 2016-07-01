@@ -323,16 +323,20 @@ namespace Orchard.Taxonomies.Services {
         public IEnumerable<TermPart> GetChildren(TermPart term, bool includeParent, int numberOfLevelsLimit = 0) {
             var rootPath = term.FullPath + "/";
 
-            var query = _contentManager.Query<TermPart, TermPartRecord>().Where(x => x.TaxonomyId == term.TaxonomyId && x.Level > term.Level);
+            var query = _contentManager.Query<TermPart, TermPartRecord>().Where(x => x.TaxonomyId == term.TaxonomyId && x.Level > term.Level && x.Path.StartsWith(rootPath));
             if (numberOfLevelsLimit > 0)
-                query = query.Where(x => x.Path.StartsWith(rootPath) && x.Level <= term.Level + numberOfLevelsLimit);                        
+                query = query.Where(x => x.Level <= term.Level + numberOfLevelsLimit);                        
             var result = query.List();
 
-            if (includeParent) {
-                result = result.Concat(new[] { term });
-            }
+            result = result.Concat(new[] { term });
+            
+            result = TermPart.Sort(result);
 
-            return TermPart.Sort(result);
+            if (!includeParent)
+            {
+                result = result.Where(x => x.Id != term.Id).ToList();
+            }
+            return result;
         }
 
         public IEnumerable<TermPart> GetParents(TermPart term) {
