@@ -288,7 +288,12 @@ namespace Orchard.Projections {
             return 4;
         }
 
-        public int UpdateFrom4() {            
+        public int UpdateFrom4()
+        {
+            SchemaBuilder.AlterTable("LayoutRecord", table => table.AddColumn<string>("Alias"));
+            return 5;
+         }
+        public int UpdateFrom5() {            
             SchemaBuilder.AlterTable("PropertyRecord", table => table
                 .AddColumn<string>("RewriteAsEmptyRule", c => c.Unlimited())
             );
@@ -301,7 +306,7 @@ namespace Orchard.Projections {
                 }
             }
             
-            return 5;
+            return 6;
         }
     }
 }
