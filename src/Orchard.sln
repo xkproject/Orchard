@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{E9C9F120-07BA-4DFB-B9C3-3AFB9D44C9D5}"
 EndProject
@@ -347,6 +347,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKProject.Maps", "Orchard.Web\Orchard.XK\Modules\XKProject.Maps\XKProject.Maps.csproj", "{F1027CDC-AF9C-4DD8-B2A8-FC9A758D2898}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XKProject.Tasks", "Orchard.Web\Orchard.XK\Modules\XKProject.Tasks\XKProject.Tasks.csproj", "{61BFC756-BDFE-41AD-90C0-C1AC58572B64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpAuth", "Orchard.Web\ThirdParty\Modules\HttpAuth\HttpAuth.csproj", "{69773E39-5A88-44FF-BE30-C7E21D099C03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules.PCCom", "Modules.PCCom", "{1D6611D4-4A31-4438-A940-3C9ECE72D89E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PCCOM.Distrib.WebAPI.SaleNotes", "Orchard.Web\Orchard.PCCom\Modules\PCCOM.Distrib.WebAPI.SaleNotes\PCCOM.Distrib.WebAPI.SaleNotes.csproj", "{328A78E8-6348-44C1-B6C3-85497C3AB2BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1394,6 +1400,26 @@ Global
 		{61BFC756-BDFE-41AD-90C0-C1AC58572B64}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{61BFC756-BDFE-41AD-90C0-C1AC58572B64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61BFC756-BDFE-41AD-90C0-C1AC58572B64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Coverage|Any CPU.Build.0 = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69773E39-5A88-44FF-BE30-C7E21D099C03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Coverage|Any CPU.Build.0 = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1503,6 +1529,8 @@ Global
 		{847835FD-4389-447A-A0C0-8C49C77DB3D2} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 		{F1027CDC-AF9C-4DD8-B2A8-FC9A758D2898} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
 		{61BFC756-BDFE-41AD-90C0-C1AC58572B64} = {C715858F-167D-4199-81C5-8D9EAEA7993B}
+		{69773E39-5A88-44FF-BE30-C7E21D099C03} = {9F090F5B-3230-44FB-9F95-E93E21AC09A5}
+		{328A78E8-6348-44C1-B6C3-85497C3AB2BD} = {1D6611D4-4A31-4438-A940-3C9ECE72D89E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\TransientFaultHandling.Core.5.1.1209.1\lib\NET4

@@ -11,3 +11,11 @@
 [submodule "src/Orchard.Web/ThirdParty/Modules/Piedone.Combinator"]
 	path = src/Orchard.Web/ThirdParty/Modules/Piedone.Combinator
 	url = https://github.com/xkproject/Combinator.git
+[submodule "src/Orchard.Web/ThirdParty/Modules/HttpAuth"]
+	path = src/Orchard.Web/ThirdParty/Modules/HttpAuth
+	url = https://github.com/xkproject/HttpAuth.git
+	branch = develop
+[submodule "src/Orchard.Web/Orchard.PCCom"]
+	path = src/Orchard.Web/Orchard.PCCom
+	url = https://github.com/xkproject/Orchard.PCCom.git
+	branch = master
